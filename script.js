@@ -1,5 +1,5 @@
 (() => {
-  const saveKey = "national-diary-save-v2";
+  const saveKey = "national-diary-save-v3";
   const routes = [...document.querySelectorAll("[data-route]")];
   const views = [...document.querySelectorAll("[data-view]")];
   const toast = document.querySelector(".toast");
@@ -50,7 +50,14 @@
     ]
   ];
 
-  function createSchedule(day) {
+  const presidentialSchedule = [
+    { id: "cabinet", time: "09:00", category: "국무회의", title: "국무회의 주재", place: "대통령 집무실", detail: "부처별 주요 현안과 대응 방안 보고", ap: 4, mandatory: true, skills: { leadership: 2, administration: 2, stamina: -2 }, political: { support: 1, trust: 1 }, result: "국무회의를 주재하고 부처별 현안 대응 방향을 결정했습니다.", skipPenalty: {} },
+    { id: "economy-report", time: "11:00", category: "경제", title: "경제 상황 보고", place: "대통령 집무실", detail: "고용·물가·성장 지표 점검", ap: 2, mandatory: false, skills: { economy: 2, judgment: 1, stamina: -1 }, political: {}, result: "경제 지표를 점검하고 후속 검토를 지시했습니다.", skipPenalty: {} },
+    { id: "citizen-address", time: "15:00", category: "대국민", title: "대국민 정책 브리핑", place: "춘추관", detail: "정부의 주요 정책과 추진 일정 발표", ap: 2, mandatory: false, skills: { speech: 2, stamina: -1 }, political: { awareness: 2, trust: 1 }, result: "주요 국정 과제와 추진 일정을 국민에게 설명했습니다.", skipPenalty: { trust: -1 } }
+  ];
+
+  function createSchedule(day, role = "member") {
+    if (role === "president") return clone(presidentialSchedule).map((item) => ({ ...item, status: "pending" }));
     const templateIndex = ((day - 3) % scheduleTemplates.length + scheduleTemplates.length) % scheduleTemplates.length;
     return clone(scheduleTemplates[templateIndex]).map((item) => ({ ...item, status: "pending" }));
   }
@@ -58,6 +65,9 @@
   const initialState = {
     date: "2026-10-02",
     day: 3,
+    careerDays: 0,
+    role: "member",
+    election: null,
     ap: 7,
     maxAp: 10,
     schedule: createSchedule(3),
@@ -94,6 +104,18 @@
     awareness: "인지도", support: "지지율", influence: "정치적 영향력",
     partyInfluence: "당내 영향력", reputation: "평판", trust: "신뢰도"
   };
+  const aiCandidateProfiles = [
+    { name: "강유진", party: "미래연합", region: "서울" },
+    { name: "문태오", party: "국민개혁당", region: "부산" },
+    { name: "한지우", party: "시민진보당", region: "광주" },
+    { name: "서도윤", party: "새로운선택", region: "대전" },
+    { name: "장하린", party: "녹색미래당", region: "인천" },
+    { name: "오민석", party: "국민연합", region: "대구" },
+    { name: "배서연", party: "공정사회당", region: "수원" },
+    { name: "신준호", party: "자유개혁당", region: "울산" },
+    { name: "임가은", party: "함께민주당", region: "세종" }
+  ];
+  const abilityKeys = Object.keys(skillLabels);
 
   const activities = {
     field: {
@@ -177,6 +199,49 @@
     return Math.min(max, Math.max(min, value));
   }
 
+  function generateElection() {
+    const candidates = [{
+      id: "player",
+      name: "윤 의원",
+      party: "무소속",
+      region: "대한민국",
+      abilities: Object.fromEntries(abilityKeys.map((key) => [key, state.skills[key]])),
+      isPlayer: true
+    }, ...aiCandidateProfiles.map((profile, index) => ({
+      id: `ai-${index + 1}`,
+      ...profile,
+      abilities: Object.fromEntries(abilityKeys.map((key) => [key, 15 + Math.floor(Math.random() * 41)])),
+      isPlayer: false
+    }))];
+
+    candidates.forEach((candidate) => {
+      candidate.abilityTotal = Object.values(candidate.abilities).reduce((sum, value) => sum + value, 0);
+    });
+
+    const totalAbility = candidates.reduce((sum, candidate) => sum + candidate.abilityTotal, 0);
+    let allocated = 0;
+    candidates.forEach((candidate) => {
+      const exactVotes = 50000000 * candidate.abilityTotal / totalAbility;
+      candidate.votes = Math.floor(exactVotes);
+      candidate.voteRemainder = exactVotes - candidate.votes;
+      candidate.voteShare = exactVotes / 50000000 * 100;
+      allocated += candidate.votes;
+    });
+    const remainderOrder = [...candidates].sort((left, right) => right.voteRemainder - left.voteRemainder);
+    for (let remainder = 50000000 - allocated, index = 0; remainder > 0; remainder -= 1, index += 1) {
+      remainderOrder[index % remainderOrder.length].votes += 1;
+    }
+    candidates.forEach((candidate) => { delete candidate.voteRemainder; });
+    candidates.sort((left, right) => right.votes - left.votes);
+    return {
+      date: state.date,
+      candidates,
+      totalVotes: candidates.reduce((sum, candidate) => sum + candidate.votes, 0),
+      winnerId: candidates[0].id,
+      playerWon: candidates[0].id === "player"
+    };
+  }
+
   function loadState() {
     try {
       const saved = JSON.parse(localStorage.getItem(saveKey));
@@ -184,6 +249,9 @@
       const state = {
         ...clone(initialState),
         ...saved,
+        careerDays: clamp(Number(saved.careerDays) || 0, 0, 30),
+        role: saved.role === "president" ? "president" : "member",
+        election: saved.election && Array.isArray(saved.election.candidates) ? saved.election : null,
         assets: { ...initialState.assets, ...saved.assets },
         investments: Object.fromEntries(stockDefinitions.map((stock) => [
           stock.id,
@@ -365,6 +433,12 @@
     document.querySelector(".header-date strong").textContent = `${date.getUTCFullYear()}년 ${date.getUTCMonth() + 1}월 ${date.getUTCDate()}일`;
     const dateLabel = `${weekday.toUpperCase()}, ${String(date.getUTCMonth() + 1).padStart(2, "0")} ${String(date.getUTCDate()).padStart(2, "0")}`;
     document.querySelector('[data-ui="schedule-date"]').textContent = dateLabel;
+    document.querySelector('[data-ui="role-label"]').textContent = state.role === "president" ? "대통령 · 취임" : "국회의원 · 무소속";
+    document.querySelector('[data-ui="career-label"]').textContent = state.role === "president" ? "대통령 임기" : "국회의원 경력";
+    document.querySelector('[data-ui="career-day"]').textContent = state.role === "president" ? state.day : state.careerDays;
+    document.querySelector(".career-stamp strong small").textContent = state.role === "president" ? "일" : " / 30일";
+    document.querySelector(".career-stamp strong small").hidden = false;
+    document.querySelector('[data-ui="honorific"]').textContent = state.role === "president" ? "윤 대통령님." : "윤 의원님.";
   }
 
   function renderResources() {
@@ -714,6 +788,78 @@
     });
   }
 
+  function renderElection() {
+    const outcome = document.querySelector('[data-ui="election-outcome"]');
+    const resultList = document.querySelector('[data-ui="election-results"]');
+    const continueButton = document.querySelector('[data-action="election-continue"]');
+    const election = state.election;
+    if (!election) {
+      document.querySelector("#election-title").textContent = "다음 대통령 선거";
+      outcome.className = "election-outcome election-countdown";
+      outcome.textContent = state.role === "president"
+        ? "현재 대통령 임기 중입니다. 다음 선거 주기는 아직 시작되지 않았습니다."
+        : `국회의원 경력 ${state.careerDays}/30일 · ${Math.max(0, 30 - state.careerDays)}일 뒤 9명의 AI 후보와 전국 선거를 치릅니다.`;
+      document.querySelector('[data-ui="election-total"]').textContent = "선거 전";
+      document.querySelector('[data-ui="election-candidate-count"]').textContent = "플레이어 + AI 9명";
+      resultList.replaceChildren();
+      continueButton.hidden = true;
+      return;
+    }
+
+    const playerWon = election.playerWon;
+    document.querySelector("#election-title").textContent = playerWon ? "대통령 당선!" : "대통령 선거 결과";
+    outcome.className = `election-outcome ${playerWon ? "is-victory" : "is-defeat"}`;
+    const player = election.candidates.find((candidate) => candidate.isPlayer);
+    const rank = election.candidates.findIndex((candidate) => candidate.isPlayer) + 1;
+    outcome.textContent = playerWon
+      ? `윤 의원이 ${formatVotes(player.votes)}표를 얻어 제${rank}대통령에 당선됐습니다.`
+      : `윤 의원은 ${formatVotes(player.votes)}표로 ${rank}위를 기록했습니다. 다음 임기를 준비하세요.`;
+    document.querySelector('[data-ui="election-total"]').textContent = `${formatVotes(election.totalVotes)}표`;
+    document.querySelector('[data-ui="election-candidate-count"]').textContent = `${election.candidates.length}명`;
+    resultList.replaceChildren();
+
+    election.candidates.forEach((candidate, index) => {
+      const card = document.createElement("article");
+      card.className = `election-candidate${candidate.isPlayer ? " is-player" : ""}${index === 0 ? " is-winner" : ""}`;
+      const rankElement = document.createElement("span");
+      rankElement.className = "candidate-rank";
+      rankElement.textContent = String(index + 1).padStart(2, "0");
+      const details = document.createElement("div");
+      details.className = "candidate-details";
+      const nameLine = document.createElement("div");
+      nameLine.className = "candidate-name-line";
+      const name = document.createElement("strong");
+      name.textContent = candidate.name;
+      const party = document.createElement("span");
+      party.textContent = candidate.isPlayer ? "나" : candidate.party;
+      nameLine.append(name, party);
+      const meta = document.createElement("small");
+      meta.textContent = candidate.isPlayer ? "플레이어 후보" : `${candidate.region} · 능력 총합 ${candidate.abilityTotal}`;
+      const bar = document.createElement("div");
+      bar.className = "candidate-vote-bar";
+      const fill = document.createElement("i");
+      const share = candidate.votes / election.totalVotes * 100;
+      fill.style.width = `${share}%`;
+      bar.append(fill);
+      details.append(nameLine, meta, bar);
+      const voteBlock = document.createElement("div");
+      voteBlock.className = "candidate-vote-count";
+      const votes = document.createElement("strong");
+      votes.textContent = formatVotes(candidate.votes);
+      const percentage = document.createElement("span");
+      percentage.textContent = `${share.toFixed(2)}%`;
+      voteBlock.append(votes, percentage);
+      card.append(rankElement, details, voteBlock);
+      resultList.append(card);
+    });
+    continueButton.hidden = false;
+    continueButton.textContent = playerWon ? "대통령 취임" : "다음 임기 시작";
+  }
+
+  function formatVotes(votes) {
+    return new Intl.NumberFormat("ko-KR").format(votes);
+  }
+
   function render() {
     renderHeader();
     renderResources();
@@ -723,6 +869,7 @@
     renderRelationships();
     renderSchedule();
     renderEvent();
+    renderElection();
     renderCountry();
     renderPriorities();
     renderInvestments();
@@ -979,6 +1126,37 @@
     showToast(choice.result);
   }
 
+  function conductElection() {
+    state.election = generateElection();
+    const winner = state.election.candidates[0];
+    record(`대통령 선거 실시: ${winner.name} 후보가 ${formatVotes(winner.votes)}표를 얻어 당선됐습니다.`);
+    addNews("대통령 선거", `${winner.name} 후보 당선`, `전국 유효 투표 ${formatVotes(state.election.totalVotes)}표 · 출마 후보 10명`);
+    render();
+    saveState();
+    navigate("election");
+    showToast("국회의원 경력 30일을 채워 대통령 선거가 열렸습니다.");
+  }
+
+  function continueAfterElection() {
+    if (!state.election) return;
+    const won = state.election.playerWon;
+    state.role = won ? "president" : "member";
+    state.careerDays = 0;
+    state.election = null;
+    state.schedule = createSchedule(state.day, state.role);
+    if (won) {
+      state.political.influence = clamp(state.political.influence + 10);
+      state.political.trust = clamp(state.political.trust + 8);
+      record("대통령에 취임했습니다. 첫 국무회의와 국정 일정이 시작됩니다.");
+    } else {
+      record("선거 결과를 받아들이고 다음 30일의 의정 활동을 시작합니다.");
+    }
+    render();
+    saveState();
+    navigate("home");
+    showToast(won ? "대통령에 취임했습니다." : "새로운 30일 의정 활동을 시작합니다.");
+  }
+
   function endDay() {
     if (state.schedule.some((item) => item.status === "pending" && item.mandatory)) {
       navigate("schedule");
@@ -1001,11 +1179,20 @@
     state.date = next.toISOString().slice(0, 10);
     state.day += 1;
     state.ap = state.maxAp;
-    state.schedule = createSchedule(state.day);
     state.skills.stamina = clamp(state.skills.stamina + 8);
     state.skills.stress = clamp(state.skills.stress - 4);
     advanceCountry();
     record(`새로운 하루가 시작됐습니다. 행동 포인트가 ${state.maxAp}로 회복됐습니다.`);
+    if (state.role === "member") {
+      state.careerDays += 1;
+      if (state.careerDays >= 30) {
+        state.careerDays = 30;
+        state.schedule = [];
+        conductElection();
+        return;
+      }
+    }
+    state.schedule = createSchedule(state.day, state.role);
     const hasEvent = tryRandomEvent();
     render();
     saveState();
@@ -1133,6 +1320,9 @@
         break;
       case "event-choice":
         resolveEvent(Number(button.dataset.choice));
+        break;
+      case "election-continue":
+        continueAfterElection();
         break;
       case "end-day":
         endDay();
