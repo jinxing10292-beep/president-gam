@@ -4,7 +4,6 @@
   const views = [...document.querySelectorAll("[data-view]")];
   const toast = document.querySelector(".toast");
   const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-  const tradeQuantities = Object.fromEntries(stockDefinitions.map((stock) => [stock.id, "1"]));
   let toastTimer;
 
   const stockDefinitions = [
@@ -19,6 +18,7 @@
     { id: "MIR", name: "미래전력", sector: "전력", price: 27500 },
     { id: "SBL", name: "새봄바이오", sector: "바이오", price: 81600 }
   ];
+  const tradeQuantities = Object.fromEntries(stockDefinitions.map((stock) => [stock.id, "1"]));
 
   const buildings = [
     { id: "district-office", name: "지역구 민원센터", kind: "지역 사무소", price: 45000000, icon: "⌂", description: "주민을 만날 거점을 마련합니다.", effects: "인지도 +3 · 지지율 +2", political: { awareness: 3, support: 2 }, daily: { awareness: 1 } },
