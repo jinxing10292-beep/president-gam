@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3f1e9">
+    <title>오늘의 국정 - 정치 전략 게임</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div class="game-shell">
+      <header class="topbar">
+        <a class="wordmark" href="#home" aria-label="오늘의 국정 홈">오늘의 국정</a>
+        <div class="turn-label">
+          <span>의원 1년 차</span>
+          <strong>월요일 · 3일 차</strong>
+        </div>
+        <button class="advance-button" type="button" data-action="end-day">하루 마감</button>
+      </header>
+
+      <section class="news-strip" id="news" aria-labelledby="news-title">
+        <h2 id="news-title">실시간 뉴스</h2>
+        <ol class="news-ticker">
+          <li>
+            <time datetime="09:12">09:12</time>
+            <span class="news-category">민생</span>
+            <p>집중호우로 남부 지역 침수 피해 확대</p>
+          </li>
+          <li>
+            <time datetime="08:46">08:46</time>
+            <span class="news-category">국회</span>
+            <p>여야, 긴급 재난 예산 편성 두고 이견</p>
+          </li>
+          <li>
+            <time datetime="08:20">08:20</time>
+            <span class="news-category">여론</span>
+            <p>시민단체, 재난 대응 체계 개선 촉구</p>
+          </li>
+        </ol>
+      </section>
+
+      <main id="home">
+        <section class="welcome-row" aria-labelledby="welcome-title">
+          <div>
+            <p class="eyebrow">대한민국 · 제22대 국회</p>
+            <h1 id="welcome-title">좋은 아침이에요, 의원님</h1>
+            <p>오늘도 선택이 나라의 흐름을 바꿉니다.</p>
+          </div>
+          <div class="action-points" aria-label="남은 행동력">
+            <span>오늘의 행동</span>
+            <strong><span data-stat="actions-left">2</span><span aria-hidden="true"> / </span><span data-stat="actions-total">3</span></strong>
+          </div>
+        </section>
+
+        <section class="status-section" id="overview" aria-labelledby="status-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">현재 상태</p>
+              <h2 id="status-title">의원 활동 현황</h2>
+            </div>
+            <button class="text-button" type="button" data-action="show-details">전체 보기</button>
+          </div>
+          <dl class="status-grid">
+            <div class="status-item">
+              <dt>지역 민심</dt>
+              <dd><strong>58</strong><span>/ 100</span></dd>
+              <progress value="58" max="100" aria-label="지역 민심 100점 중 58점">58%</progress>
+            </div>
+            <div class="status-item">
+              <dt>인지도</dt>
+              <dd><strong>34</strong><span>/ 100</span></dd>
+              <progress value="34" max="100" aria-label="인지도 100점 중 34점">34%</progress>
+            </div>
+            <div class="status-item">
+              <dt>정책력</dt>
+              <dd><strong>41</strong><span>/ 100</span></dd>
+              <progress value="41" max="100" aria-label="정책력 100점 중 41점">41%</progress>
+            </div>
+            <div class="status-item">
+              <dt>체력</dt>
+              <dd><strong>72</strong><span>/ 100</span></dd>
+              <progress value="72" max="100" aria-label="체력 100점 중 72점">72%</progress>
+            </div>
+          </dl>
+        </section>
+
+        <section class="urgent-section" aria-labelledby="urgent-title">
+          <div class="urgent-heading">
+            <span class="urgency-label">긴급 현안</span>
+            <span>대응까지 2일</span>
+          </div>
+          <h2 id="urgent-title">남부 지역 집중호우 피해</h2>
+          <p>침수 피해가 커지며 주민 지원과 긴급 예산 편성 요구가 이어지고 있습니다.</p>
+          <div class="impact-row" aria-label="예상 영향">
+            <span>지역 민심 하락 위험</span>
+            <span>국회 내 주목도 상승</span>
+          </div>
+          <button class="primary-button" type="button" data-action="respond-to-flood">현장 대응 살펴보기</button>
+        </section>
+
+        <section class="activities-section" id="today" aria-labelledby="activities-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">행동력 1 소모</p>
+              <h2 id="activities-title">오늘 할 일</h2>
+            </div>
+            <button class="text-button" type="button" data-action="show-activities">활동 목록</button>
+          </div>
+          <div class="activity-list">
+            <article class="activity-item">
+              <div class="activity-icon" aria-hidden="true">01</div>
+              <div class="activity-copy">
+                <h3>지역 현장 방문</h3>
+                <p>주민을 만나 피해 상황과 필요한 지원을 확인합니다.</p>
+                <ul class="activity-effects" aria-label="예상 효과">
+                  <li>지역 민심 상승</li>
+                  <li>뉴스 대응</li>
+                </ul>
+              </div>
+              <button class="icon-button" type="button" data-action="visit-region" aria-label="지역 현장 방문 선택">선택</button>
+            </article>
+            <article class="activity-item">
+              <div class="activity-icon" aria-hidden="true">02</div>
+              <div class="activity-copy">
+                <h3>긴급 예산안 준비</h3>
+                <p>재난 복구 예산을 마련해 국회 논의를 시작합니다.</p>
+                <ul class="activity-effects" aria-label="예상 효과">
+                  <li>정책력 상승</li>
+                  <li>예산 부담</li>
+                </ul>
+              </div>
+              <button class="icon-button" type="button" data-action="prepare-budget" aria-label="긴급 예산안 준비 선택">선택</button>
+            </article>
+            <article class="activity-item">
+              <div class="activity-icon" aria-hidden="true">03</div>
+              <div class="activity-copy">
+                <h3>여야 의원과 협상</h3>
+                <p>재난 대응을 위한 공동 논의를 제안합니다.</p>
+                <ul class="activity-effects" aria-label="예상 효과">
+                  <li>협상력 상승</li>
+                  <li>인맥 형성</li>
+                </ul>
+              </div>
+              <button class="icon-button" type="button" data-action="negotiate">선택</button>
+            </article>
+          </div>
+        </section>
+
+        <section class="relationships-section" id="people" aria-labelledby="relationships-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">오늘 만날 사람</p>
+              <h2 id="relationships-title">주요 인물</h2>
+            </div>
+            <button class="text-button" type="button" data-action="show-people">인물 보기</button>
+          </div>
+          <ul class="person-list">
+            <li>
+              <div class="person-mark" aria-hidden="true">김</div>
+              <div><strong>김서윤</strong><span>같은 당 · 재난대책위원</span></div>
+              <span class="relationship-score" aria-label="관계도 62">62</span>
+            </li>
+            <li>
+              <div class="person-mark" aria-hidden="true">박</div>
+              <div><strong>박도현</strong><span>야당 · 예산결산위원</span></div>
+              <span class="relationship-score" aria-label="관계도 38">38</span>
+            </li>
+          </ul>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="주요 메뉴">
+        <button type="button" data-view="home" aria-current="page">
+          <span aria-hidden="true">⌂</span><span>홈</span>
+        </button>
+        <button type="button" data-view="activities">
+          <span aria-hidden="true">▤</span><span>활동</span>
+        </button>
+        <button type="button" data-view="news">
+          <span aria-hidden="true">◉</span><span>뉴스</span>
+        </button>
+        <button type="button" data-view="people">
+          <span aria-hidden="true">♙</span><span>인물</span>
+        </button>
+        <button type="button" data-view="history">
+          <span aria-hidden="true">≡</span><span>기록</span>
+        </button>
+      </nav>
+    </div>
+  </body>
+</html>
