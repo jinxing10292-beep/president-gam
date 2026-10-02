@@ -376,6 +376,11 @@ main { width: min(100% - 32px, 1000px); margin: 0 auto; }
 .event-choices strong { font-family: var(--font-ko); font-size: 10px; }
 .event-choices small { color: #92bce0; font-size: 8px; }
 .event-choices b { color: #78baff; font-size: 13px; }
+.end-day-button { grid-column: 1 / -1; min-height: 36px; padding: 0 11px; border: 1px solid #347db5; border-radius: 4px; background: #123958; color: #b9ddff; font-size: 10px; font-weight: 750; text-align: left; }
+.end-day-button span { float: right; color: #73b9f7; font-size: 13px; }
+.end-day-button:hover { border-color: #58a9ff; background: #164a74; }
+.activity-card.is-highlighted { border-color: #58a9ff; box-shadow: 0 0 0 2px #58a9ff45; }
+.activity-card > button:disabled { border-color: #29496b; background: #0a1b30; color: #627994; }
 
 @media (min-width: 680px) {
   .event-art { min-height: 240px; }
