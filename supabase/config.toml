@@ -1,0 +1,5 @@
+project_id = "president-game"
+
+[functions.username-login]
+verify_jwt = false
+entrypoint = "./functions/username-login/index.js"

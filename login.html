@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#06152b">
+    <title>로그인 | 국정일지</title>
+    <link rel="stylesheet" href="login.css">
+    <script src="supabase-config.js"></script>
+    <script type="module" src="login.js"></script>
+  </head>
+  <body>
+    <main class="auth-shell">
+      <a class="auth-brand" href="login.html" aria-label="국정일지 로그인">
+        <span class="auth-mark" aria-hidden="true">ㄱ</span>
+        <span>국정일지</span>
+      </a>
+      <section class="auth-panel" aria-labelledby="auth-title">
+        <div class="auth-heading">
+          <p class="auth-kicker">PRESIDENTIAL SIMULATION</p>
+          <h1 id="auth-title">정치의 첫 장을<br>시작하세요.</h1>
+          <p>닉네임으로 진행 상황을 이어갑니다.</p>
+        </div>
+        <div class="auth-tabs" role="tablist" aria-label="계정 메뉴">
+          <button class="is-selected" type="button" role="tab" aria-selected="true" data-auth-mode="login">로그인</button>
+          <button type="button" role="tab" aria-selected="false" data-auth-mode="signup">회원가입</button>
+        </div>
+
+        <form class="auth-form" data-auth-form="login">
+          <label for="login-username">닉네임</label>
+          <input id="login-username" name="username" type="text" autocomplete="username" minlength="2" maxlength="20" required placeholder="닉네임 입력">
+          <label for="login-password">비밀번호</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="8자 이상">
+          <button class="auth-submit" type="submit">로그인 <span aria-hidden="true">→</span></button>
+        </form>
+
+        <form class="auth-form" data-auth-form="signup" hidden>
+          <label for="signup-username">닉네임</label>
+          <input id="signup-username" name="username" type="text" autocomplete="username" minlength="2" maxlength="20" pattern="[A-Za-z0-9_가-힣]{2,20}" required placeholder="2-20자, 한글·영문·숫자">
+          <label for="signup-email">이메일</label>
+          <input id="signup-email" name="email" type="email" autocomplete="email" required placeholder="계정 확인용 이메일">
+          <label for="signup-password">비밀번호</label>
+          <input id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="8자 이상">
+          <button class="auth-submit" type="submit">계정 만들기 <span aria-hidden="true">→</span></button>
+        </form>
+
+        <p class="auth-status" data-auth-status role="status" aria-live="polite" hidden></p>
+        <p class="auth-note">로그인 정보는 Supabase 인증으로 안전하게 처리됩니다.</p>
+      </section>
+      <footer class="auth-footer"><span>국정일지</span><span>EARLY ACCESS · 0.1.0</span></footer>
+    </main>
+  </body>
+</html>

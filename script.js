@@ -1,5 +1,19 @@
-(() => {
-  const saveKey = "national-diary-save-v3";
+((async () => {
+  const supabaseConfig = window.SUPABASE_CONFIG;
+  if (supabaseConfig && supabaseConfig.isConfigured()) {
+    const { createClient } = await import(supabaseConfig.clientUrl);
+    const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data.session) {
+      window.location.replace("login.html");
+      return;
+    }
+    window.gameAuth = { supabase, user: data.session.user };
+  }
+
+  const saveKey = window.gameAuth?.user?.id
+    ? `national-diary-save-v3:${window.gameAuth.user.id}`
+    : "national-diary-save-v3:local";
   const routes = [...document.querySelectorAll("[data-route]")];
   const views = [...document.querySelectorAll("[data-view]")];
   const toast = document.querySelector(".toast");
@@ -523,7 +537,8 @@
     document.querySelector(".career-stamp strong small").textContent = state.role === "president" ? "일" : " / 30일";
     document.querySelector(".career-stamp strong small").hidden = false;
     document.querySelector('[data-ui="honorific"]').textContent = state.role === "president" ? "윤 대통령님." : "윤 의원님.";
-    document.querySelector('[data-ui="profile-name"]').textContent = state.role === "president" ? "윤 대통령" : "윤 의원";
+    const username = window.gameAuth?.user?.user_metadata?.username;
+    document.querySelector('[data-ui="profile-name"]').textContent = username || (state.role === "president" ? "윤 대통령" : "윤 의원");
     document.querySelector('[data-ui="profile-role"]').textContent = state.role === "president" ? `대통령 · 취임 ${state.day}일 차` : "초선 · 국회의원";
     document.querySelector('[data-role-only="president"]').hidden = state.role !== "president";
     const countrySlot = document.querySelector('[data-nav-slot="country"]');
@@ -608,13 +623,16 @@
     }));
     const path = points.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
     const area = `${path} L100 28 L0 28 Z`;
-    document.querySelector(`[data-chart-line="${key}"]`).setAttribute("d", path);
-    document.querySelector(`[data-chart-area="${key}"]`).setAttribute("d", area);
-    const last = points[points.length - 1];
+    const lineElement = document.querySelector(`[data-chart-line="${key}"]`);
+    const areaElement = document.querySelector(`[data-chart-area="${key}"]`);
     const marker = document.querySelector(`[data-chart-point="${key}"]`);
+    if (!lineElement || !areaElement || !marker) return;
+    lineElement.setAttribute("d", path);
+    areaElement.setAttribute("d", area);
+    const last = points[points.length - 1];
     marker.setAttribute("cx", last.x.toFixed(1));
     marker.setAttribute("cy", last.y.toFixed(1));
-    marker.parentElement.setAttribute("aria-label", `최근 ${samples.length}회 기록, ${history[history.length - 1]}점`);
+    marker.closest("svg")?.setAttribute("aria-label", `최근 ${samples.length}회 기록, ${history[history.length - 1]}점`);
   }
 
   function renderHistoryBars(key, history) {
@@ -1826,6 +1844,13 @@
         saveState();
         showToast("현재 진행 상황을 저장했습니다.");
         break;
+      case "logout":
+        if (window.gameAuth?.supabase) {
+          window.gameAuth.supabase.auth.signOut().finally(() => window.location.replace("login.html"));
+        } else {
+          window.location.replace("login.html");
+        }
+        break;
       case "reset-game":
         if (window.confirm("저장된 진행 상황을 지우고 새 게임을 시작할까요?")) {
           localStorage.removeItem(saveKey);
@@ -1855,4 +1880,4 @@
   render();
   window.setInterval(tickMarket, 4000);
   window.setInterval(saveState, 30000);
-})();
+})());
