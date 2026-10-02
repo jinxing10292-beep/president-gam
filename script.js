@@ -33,6 +33,50 @@
     { id: "disaster-system", title: "재난 대응 체계 개선", detail: "현장 대응 인력과 지역 대피 기반 확충", ap: 2, budget: 3, effects: "행복도 +5 · 신뢰도 +6 · 안정도 +8", country: { happiness: 5, trust: 6, stability: 8, debt: 1 }, political: { support: 4, trust: 4 }, skills: { administration: 2 } }
   ];
 
+  const diplomacyCountries = [
+    { id: "us", name: "미국", short: "US", detail: "안보 동맹 · 첨단 기술" },
+    { id: "japan", name: "일본", short: "JP", detail: "한일 협력 · 공급망" },
+    { id: "china", name: "중국", short: "CN", detail: "교역 · 역내 안정" },
+    { id: "russia", name: "러시아", short: "RU", detail: "에너지 · 지역 안보" },
+    { id: "uk", name: "영국", short: "UK", detail: "통상 · 안보 협력" },
+    { id: "france", name: "프랑스", short: "FR", detail: "산업 · 문화 교류" },
+    { id: "germany", name: "독일", short: "DE", detail: "제조업 · 기후 기술" },
+    { id: "india", name: "인도", short: "IN", detail: "기술 · 인도태평양" },
+    { id: "australia", name: "호주", short: "AU", detail: "자원 · 해양 안보" }
+  ];
+
+  const diplomacyAgendaThemes = [
+    { title: "공급망 안정", details: ["핵심 광물 장기 공급과 공동 비축", "반도체 소재 통관 절차 간소화", "의약품 원료 공급망 다변화", "항만 물류 병목 해소와 운송 협력", "식량 위기 시 긴급 수출 협의"] },
+    { title: "무역과 투자", details: ["중소기업 수출 절차 간소화", "상호 투자 심사 기준의 투명성", "디지털 서비스 시장 접근성", "농수산물 검역 기준 조율", "청정 산업 공동 투자 기금"] },
+    { title: "기후와 에너지", details: ["재생에너지 기술 공동 개발", "수소 운송 규격과 인증 상호 인정", "탄소 감축 실적 측정 기준 통일", "전력망 위기 시 에너지 협력", "산불과 폭염 조기 경보 정보 공유"] },
+    { title: "안보와 평화", details: ["해상 구조와 재난 대응 훈련", "군 통신선의 우발 충돌 방지", "사이버 공격 정보 공유 원칙", "국제 분쟁의 긴장 완화 채널", "방위 산업 기술 보호 기준"] },
+    { title: "과학과 기술", details: ["인공지능 안전성 공동 연구", "우주 잔해 추적 정보 교환", "연구자 교류와 공동 특허 절차", "양자 기술의 민간 활용 협력", "통신 표준과 주파수 간섭 조정"] },
+    { title: "보건과 안전", details: ["감염병 조기 경보와 검체 공유", "고령화 대응 의료 기술 협력", "의약품 긴급 공급 절차", "식품 안전 사고 공동 조사", "응급 구조대 합동 훈련"] },
+    { title: "교육과 인재", details: ["대학 간 학점과 자격 상호 인정", "청년 연구자 교환 프로그램", "직업 훈련 과정 공동 개발", "유학생 안전과 지원 창구", "한국어 및 현지 언어 교육 교류"] },
+    { title: "문화와 관광", details: ["청년 예술가 순회 교류전", "관광객 편의를 위한 입국 정보 개선", "문화재 불법 거래 방지 협력", "영화와 게임 공동 제작 지원", "스포츠 교류와 선수 안전 기준"] },
+    { title: "개발과 인도 지원", details: ["재난 피해국 긴급 구호 물자 조달", "개발 사업의 공동 평가 기준", "식수와 위생 시설 기술 지원", "농업 생산성 향상 시범 사업", "인도 지원 인력의 현장 안전"] },
+    { title: "국제 규범과 제도", details: ["국제기구 의제에 대한 사전 협의", "디지털 개인정보 보호 원칙", "해양 오염 감시 자료 공유", "경제 제재의 인도적 예외 절차", "다자 협정의 분쟁 조정 방식"] }
+  ];
+
+  function createAgendaPool(country) {
+    return diplomacyAgendaThemes.flatMap((theme, themeIndex) => theme.details.map((detail, detailIndex) => ({
+      id: `${country.id}-${themeIndex}-${detailIndex}`,
+      title: `${country.name} · ${detail}`,
+      detail: `${theme.title} 분야의 양국 공동 협력 방안을 논의합니다.`,
+      theme: theme.title
+    })));
+  }
+
+  function createDiplomacyState() {
+    return Object.fromEntries(diplomacyCountries.map((country) => [country.id, {
+      relationship: 50,
+      usedAgendas: [],
+      currentAgendaId: null,
+      currentImpact: 0,
+      chat: []
+    }]));
+  }
+
   const scheduleTemplates = [
     [
       { id: "committee", time: "09:00", category: "상임위", title: "민생경제위원회 회의", place: "국회 본관 3층", detail: "지역 상권 회복 지원안 심사", ap: 3, mandatory: true, skills: { policy: 2, administration: 1, stamina: -2 }, political: { influence: 1 }, result: "상임위원회에서 지역 상권 회복 지원안 심사에 참석했습니다.", skipPenalty: {} },
@@ -77,6 +121,9 @@
     market: stockDefinitions.map((stock) => ({ ...stock, previousClose: stock.price, change: 0 })),
     buildings: [],
     completedPriorities: [],
+    activeCountryId: "us",
+    diplomacy: createDiplomacyState(),
+    military: { readiness: 68, defenseBudget: 50, security: 72, exercises: 0 },
     skills: {
       politics: 45, leadership: 38, negotiation: 32, speech: 28,
       policy: 26, administration: 22, diplomacy: 18, economy: 22,
@@ -125,17 +172,17 @@
       title: "지역 주민 만나기", cost: 2, category: "지역",
       message: "지역 시장을 찾아 주민들의 민원과 생활 현안을 들었습니다.",
       skills: { popularity: 2, speech: 1, stamina: -3 },
-      political: { support: 2, awareness: 2 }, relationships: { minjae: 4 }, money: -100000
+      political: { support: 2, awareness: 2 }, relationships: { minjae: 4 }, money: -100000, pay: 450000
     },
     study: {
       title: "정책 연구", cost: 3, category: "국회",
       message: "지역 상권 회복 지원 정책을 분석하고 대안을 정리했습니다.",
-      skills: { policy: 3, economy: 2, judgment: 1, stamina: -2 }, political: { influence: 1 }, money: 0
+      skills: { policy: 3, economy: 2, judgment: 1, stamina: -2 }, political: { influence: 1 }, money: 0, pay: 600000
     },
     press: {
       title: "기자 인터뷰", cost: 2, category: "정치",
       message: "지역 현안에 대한 입장을 언론을 통해 시민에게 알렸습니다.",
-      skills: { speech: 2, popularity: 1, stress: 2 }, political: { awareness: 3, reputation: 1, trust: 1 }, relationships: { haneul: 3 }, money: -50000
+      skills: { speech: 2, popularity: 1, stress: 2 }, political: { awareness: 3, reputation: 1, trust: 1 }, relationships: { haneul: 3 }, money: -50000, pay: 500000
     },
     rest: {
       title: "휴식하기", cost: 1, category: "개인",
@@ -145,17 +192,17 @@
     bill: {
       title: "법안 검토", cost: 3, category: "국회",
       message: "관련 법안과 조문을 검토해 정책 제안의 근거를 보강했습니다.",
-      skills: { law: 3, policy: 2, judgment: 1, stamina: -3 }, political: { influence: 1 }, money: 0
+      skills: { law: 3, policy: 2, judgment: 1, stamina: -3 }, political: { influence: 1 }, money: 0, pay: 600000
     },
     committee: {
       title: "상임위 질의 준비", cost: 2, category: "국회",
       message: "상임위원회 질의 자료를 준비하고 현안 대응 방안을 정리했습니다.",
-      skills: { politics: 2, speech: 1, administration: 1, stamina: -2 }, political: { awareness: 1, influence: 1 }, money: 0
+      skills: { politics: 2, speech: 1, administration: 1, stamina: -2 }, political: { awareness: 1, influence: 1 }, money: 0, pay: 500000
     },
     party: {
       title: "당내 회의 참석", cost: 2, category: "정치",
       message: "동료 의원들과 민생 의제를 조율하고 협력 관계를 다졌습니다.",
-      skills: { negotiation: 2, leadership: 1, stamina: -2 }, political: { partyInfluence: 2, influence: 1 }, relationships: { seoyun: 3 }, money: -50000
+      skills: { negotiation: 2, leadership: 1, stamina: -2 }, political: { partyInfluence: 2, influence: 1 }, relationships: { seoyun: 3 }, money: -50000, pay: 350000
     },
     exercise: {
       title: "운동하기", cost: 2, category: "개인",
@@ -189,7 +236,7 @@
       choices: [
         { title: "등교 시간에 현장을 확인한다.", effect: "지지율 +2 · 인지도 +1", skills: { popularity: 1, judgment: 1 }, political: { support: 2, awareness: 1 }, result: "등굣길을 직접 확인하고 주민들과 개선 우선순위를 정했습니다." },
         { title: "교육청과 구청에 공동 점검을 요청한다.", effect: "행정 능력 +2 · 관계 +2", skills: { administration: 2, negotiation: 1 }, political: { trust: 1 }, relationships: { seoyun: 2 }, result: "관계 기관의 합동 점검 일정이 잡혔습니다." },
-        { title: "안전 예산 확보를 추진한다.", effect: "정치력 +1 · 자산 -₩100,000", skills: { politics: 1 }, political: { influence: 1, support: 1 }, money: -100000, result: "통학로 개선을 위한 예산 확보 절차를 시작했습니다." }
+        { title: "안전 예산 확보를 추진한다.", effect: "정치력 +1 · 활동비 -₩10,000,000", skills: { politics: 1 }, political: { influence: 1, support: 1 }, money: -10000000, result: "통학로 개선을 위해 1,000만 원 규모의 현장 설계·안전 진단 활동비를 편성했습니다." }
       ]
     }
   };
@@ -256,6 +303,28 @@
         role: saved.role === "president" ? "president" : "member",
         election: saved.election && Array.isArray(saved.election.candidates) ? saved.election : null,
         eventQueue: Array.isArray(saved.eventQueue) ? saved.eventQueue.filter((id) => eventCatalog[id]).slice(0, 20) : [],
+        activeCountryId: diplomacyCountries.some((country) => country.id === saved.activeCountryId) ? saved.activeCountryId : "us",
+        diplomacy: Object.fromEntries(diplomacyCountries.map((country) => {
+          const savedCountry = saved.diplomacy?.[country.id] || {};
+          const validAgendaIds = new Set(createAgendaPool(country).map((agenda) => agenda.id));
+          const usedAgendas = Array.isArray(savedCountry.usedAgendas)
+            ? [...new Set(savedCountry.usedAgendas.filter((id) => validAgendaIds.has(id)))]
+            : [];
+          const currentAgendaId = validAgendaIds.has(savedCountry.currentAgendaId) && !usedAgendas.includes(savedCountry.currentAgendaId)
+            ? savedCountry.currentAgendaId
+            : null;
+          const chat = Array.isArray(savedCountry.chat)
+            ? savedCountry.chat.filter((message) => message && ["user", "ai"].includes(message.speaker) && typeof message.text === "string").slice(-80)
+            : [];
+          return [country.id, {
+            relationship: Math.min(100, Math.max(-100, Number.isFinite(Number(savedCountry.relationship)) ? Number(savedCountry.relationship) : 50)),
+            usedAgendas,
+            currentAgendaId,
+            currentImpact: Math.min(8, Math.max(-8, Number(savedCountry.currentImpact) || 0)),
+            chat
+          }];
+        })),
+        military: { ...initialState.military, ...saved.military },
         assets: { ...initialState.assets, ...saved.assets },
         investments: Object.fromEntries(stockDefinitions.map((stock) => [
           stock.id,
@@ -308,6 +377,10 @@
       state.country.happiness = clamp(Number(state.country.happiness) || initialState.country.happiness);
       state.country.trust = clamp(Number(state.country.trust) || initialState.country.trust);
       state.country.stability = clamp(Number(state.country.stability) || initialState.country.stability);
+      state.military.readiness = clamp(Number(state.military.readiness) || initialState.military.readiness);
+      state.military.security = clamp(Number(state.military.security) || initialState.military.security);
+      state.military.defenseBudget = Math.max(0, Number(state.military.defenseBudget) || initialState.military.defenseBudget);
+      state.military.exercises = Math.max(0, Number(state.military.exercises) || 0);
       state.relationships.forEach((person) => { person.score = clamp(Number(person.score) || 0); });
       if (state.event && !eventCatalog[state.event]) state.event = null;
       if (!state.event && state.eventQueue.length) state.event = state.eventQueue.shift();
@@ -396,7 +469,7 @@
     });
     const selectedNavRoute = ["stats", "event"].includes(route)
       ? "home"
-      : ["relationships", "assets", "investments", "buildings"].includes(route) ? "more" : route;
+      : ["relationships", "assets", "investments", "buildings", ...(state.role === "president" ? ["country", "election"] : [])].includes(route) ? "more" : route;
     routes.forEach((button) => {
       if (!button.matches(".bottom-nav [data-route]")) return;
       if (button.dataset.route === selectedNavRoute) button.setAttribute("aria-current", "page");
@@ -450,6 +523,17 @@
     document.querySelector(".career-stamp strong small").textContent = state.role === "president" ? "일" : " / 30일";
     document.querySelector(".career-stamp strong small").hidden = false;
     document.querySelector('[data-ui="honorific"]').textContent = state.role === "president" ? "윤 대통령님." : "윤 의원님.";
+    document.querySelector('[data-ui="profile-name"]').textContent = state.role === "president" ? "윤 대통령" : "윤 의원";
+    document.querySelector('[data-ui="profile-role"]').textContent = state.role === "president" ? `대통령 · 취임 ${state.day}일 차` : "초선 · 국회의원";
+    document.querySelector('[data-role-only="president"]').hidden = state.role !== "president";
+    const countrySlot = document.querySelector('[data-nav-slot="country"]');
+    const electionSlot = document.querySelector('[data-nav-slot="election"]');
+    countrySlot.dataset.route = state.role === "president" ? "diplomacy" : "country";
+    countrySlot.querySelector(".nav-icon").textContent = state.role === "president" ? "◎" : "◉";
+    countrySlot.querySelector("span:last-child").textContent = state.role === "president" ? "외교" : "국가";
+    electionSlot.dataset.route = state.role === "president" ? "military" : "election";
+    electionSlot.querySelector(".nav-icon").textContent = state.role === "president" ? "▥" : "▣";
+    electionSlot.querySelector("span:last-child").textContent = state.role === "president" ? "군사" : "선거";
   }
 
   function renderResources() {
@@ -778,6 +862,124 @@
     });
   }
 
+  function ensureDiplomacyAgenda(countryId) {
+    const country = diplomacyCountries.find((entry) => entry.id === countryId);
+    const session = state.diplomacy[countryId];
+    if (!country || !session) return null;
+    const pool = createAgendaPool(country);
+    let agenda = pool.find((entry) => entry.id === session.currentAgendaId);
+    if (!agenda) {
+      const unused = pool.filter((entry) => !session.usedAgendas.includes(entry.id));
+      agenda = unused.length ? unused[Math.floor(Math.random() * unused.length)] : null;
+      session.currentAgendaId = agenda?.id || null;
+      session.currentImpact = 0;
+    }
+    return agenda;
+  }
+
+  function renderDiplomacy() {
+    const countryList = document.querySelector('[data-ui="diplomacy-countries"]');
+    countryList.replaceChildren();
+    diplomacyCountries.forEach((country) => {
+      const session = state.diplomacy[country.id];
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `diplomacy-country${state.activeCountryId === country.id ? " is-selected" : ""}`;
+      button.dataset.action = "diplomacy-country";
+      button.dataset.countryId = country.id;
+      const mark = document.createElement("span");
+      mark.className = "diplomacy-country-mark";
+      mark.textContent = country.short;
+      const text = document.createElement("span");
+      text.className = "diplomacy-country-text";
+      const name = document.createElement("strong");
+      name.textContent = country.name;
+      const relation = document.createElement("small");
+      relation.textContent = `관계 ${session.relationship} · ${session.usedAgendas.length}/50`;
+      text.append(name, relation);
+      button.append(mark, text);
+      countryList.append(button);
+    });
+
+    const country = diplomacyCountries.find((entry) => entry.id === state.activeCountryId) || diplomacyCountries[0];
+    const session = state.diplomacy[country.id];
+    const agenda = ensureDiplomacyAgenda(country.id);
+    const counterpart = document.querySelector('[data-ui="diplomacy-counterpart"]');
+    counterpart.replaceChildren();
+    const counterpartName = document.createElement("strong");
+    counterpartName.textContent = `${country.name} 정상실`;
+    const counterpartFocus = document.createElement("span");
+    counterpartFocus.textContent = country.detail;
+    const relationship = document.createElement("span");
+    relationship.className = `diplomacy-relationship${session.relationship < 0 ? " is-negative" : ""}`;
+    relationship.textContent = `관계 ${session.relationship > 0 ? "+" : ""}${session.relationship}`;
+    counterpart.append(counterpartName, counterpartFocus, relationship);
+
+    const agendaPanel = document.querySelector('[data-ui="diplomacy-agenda"]');
+    agendaPanel.replaceChildren();
+    if (agenda) {
+      const theme = document.createElement("span");
+      theme.className = "diplomacy-theme";
+      theme.textContent = agenda.theme;
+      const title = document.createElement("strong");
+      title.textContent = agenda.title;
+      const description = document.createElement("p");
+      description.textContent = agenda.detail;
+      const count = document.createElement("small");
+      count.textContent = `미논의 안건 ${50 - session.usedAgendas.length}건`;
+      agendaPanel.append(theme, title, description, count);
+    } else {
+      const done = document.createElement("strong");
+      done.textContent = "이 국가의 50개 안건을 모두 논의했습니다.";
+      agendaPanel.append(done);
+    }
+
+    const chat = document.querySelector('[data-ui="diplomacy-chat"]');
+    chat.replaceChildren();
+    if (!session.chat.length) {
+      const introduction = document.createElement("p");
+      introduction.className = "diplomacy-introduction";
+      introduction.textContent = agenda
+        ? `${country.name} 측이 '${agenda.title}' 안건의 정상 협의를 요청했습니다.`
+        : `${country.name} 측과의 공식 안건을 모두 논의했습니다.`;
+      chat.append(introduction);
+    } else {
+      session.chat.slice(-40).forEach((message) => {
+        const bubble = document.createElement("article");
+        bubble.className = `chat-bubble is-${message.speaker}`;
+        const speaker = document.createElement("span");
+        speaker.textContent = message.speaker === "user" ? "대한민국" : `${country.name} 측`;
+        const text = document.createElement("p");
+        text.textContent = message.text;
+        bubble.append(speaker, text);
+        chat.append(bubble);
+      });
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    const input = document.querySelector('[data-ui="diplomacy-input"]');
+    const sendButton = document.querySelector('[data-action="diplomacy-send"]');
+    const nextButton = document.querySelector('[data-action="diplomacy-next"]');
+    input.disabled = !agenda;
+    sendButton.disabled = !agenda || state.ap < 1;
+    nextButton.disabled = !agenda;
+    document.querySelector('[data-ui="diplomacy-ap"]').textContent = `행동력 ${state.ap} · 발언 1 AP`;
+  }
+
+  function renderMilitary() {
+    document.querySelector('[data-military-value="readiness"]').textContent = Math.round(state.military.readiness);
+    document.querySelector('[data-military-value="security"]').textContent = Math.round(state.military.security);
+    document.querySelector('[data-military-value="defenseBudget"]').textContent = state.military.defenseBudget.toFixed(1);
+    document.querySelector('[data-military-bar="readiness"]').style.width = `${state.military.readiness}%`;
+    document.querySelector('[data-military-bar="security"]').style.width = `${state.military.security}%`;
+    document.querySelector('[data-military-bar="budget"]').style.width = `${Math.min(100, state.military.defenseBudget)}%`;
+    document.querySelector('[data-ui="exercise-count"]').textContent = `${state.military.exercises}회`;
+    const canWork = state.ap - 2 >= requiredAp();
+    document.querySelectorAll('[data-action="military-exercise"], [data-action="military-dialogue"]').forEach((button) => {
+      button.disabled = !canWork;
+    });
+  }
+
   function renderRelationships() {
     const cards = document.querySelectorAll(".contact-card");
     cards.forEach((card) => {
@@ -985,6 +1187,8 @@
     renderSchedule();
     renderEvent();
     renderElection();
+    renderDiplomacy();
+    renderMilitary();
     renderCountry();
     renderPriorities();
     renderInvestments();
@@ -1115,13 +1319,15 @@
     changeMap(state.political, outcome.political);
     changeRelationships(activity.relationships);
     if (activity.money) state.assets.cash = Math.max(0, state.assets.cash + activity.money);
+    if (activity.pay) state.assets.cash += activity.pay;
     if (id === "study") state.country.gdp += 0.1;
     if (id === "field" && state.country.happiness < 65) state.country.happiness = clamp(state.country.happiness + 1);
-    record(`${activity.title}: ${activity.message}${outcome.context ? ` ${outcome.context}` : ""}`);
-    addNews(activity.category, activity.title, `${activity.message}${outcome.context ? ` ${outcome.context}` : ""}`);
+    const paymentNote = activity.pay ? ` 활동 수당 ${formatWon(activity.pay)} 지급.` : "";
+    record(`${activity.title}: ${activity.message}${outcome.context ? ` ${outcome.context}` : ""}${paymentNote}`);
+    addNews(activity.category, activity.title, `${activity.message}${outcome.context ? ` ${outcome.context}` : ""}${paymentNote}`);
     render();
     saveState();
-    showToast(`${activity.title} 완료 · ${activity.cost} AP 사용`);
+    showToast(`${activity.title} 완료 · ${activity.cost} AP 사용${activity.pay ? ` · 수당 ${formatWon(activity.pay)}` : ""}`);
 
     if (tryRandomEvent()) {
       saveState();
@@ -1227,12 +1433,14 @@
     changeMap(state.political, outcome.political);
     changeRelationships(item.relationships);
     if (item.money) state.assets.cash = Math.max(0, state.assets.cash + item.money);
+    const payment = state.role === "president" ? 500000 : 300000;
+    state.assets.cash += payment;
     if (id === "market" && state.country.unemployment >= 4) state.country.happiness = clamp(state.country.happiness + 1);
-    record(`${item.title} 참석: ${item.result}${outcome.context ? ` ${outcome.context}` : ""}`);
-    addNews(item.category, item.title, `${item.result}${outcome.context ? ` ${outcome.context}` : ""}`);
+    record(`${item.title} 참석: ${item.result}${outcome.context ? ` ${outcome.context}` : ""} 업무 수당 ${formatWon(payment)} 지급.`);
+    addNews(item.category, item.title, `${item.result}${outcome.context ? ` ${outcome.context}` : ""} 업무 수당 ${formatWon(payment)} 지급.`);
     render();
     saveState();
-    if (!rollScheduleEvent()) showToast(`${item.title} 참석 · AP ${item.ap} 사용`);
+    if (!rollScheduleEvent()) showToast(`${item.title} 참석 · AP ${item.ap} 사용 · 수당 ${formatWon(payment)}`);
   }
 
   function skipSchedule(id) {
@@ -1303,6 +1511,123 @@
     saveState();
     navigate("home");
     showToast(won ? "대통령에 취임했습니다." : "새로운 30일 의정 활동을 시작합니다.");
+  }
+
+  function evaluateDiplomaticTone(text) {
+    const positiveWords = ["협력", "합의", "존중", "공동", "평화", "상호", "지원", "투자", "교류", "환영", "감사", "신뢰", "우호", "함께", "제안"];
+    const negativeWords = ["제재", "압박", "위협", "규탄", "거부", "단절", "보복", "침략", "불법", "굴복", "배상", "적대", "철회", "반대", "강경", "용납 못", "협조 안"];
+    const positive = positiveWords.reduce((count, word) => count + Number(text.includes(word)), 0);
+    const negative = negativeWords.reduce((count, word) => count + Number(text.includes(word)), 0);
+    return { positive, negative, score: positive - negative };
+  }
+
+  function sendDiplomaticMessage() {
+    if (state.role !== "president") return;
+    const input = document.querySelector('[data-ui="diplomacy-input"]');
+    const text = input.value.trim();
+    if (!text) {
+      showToast("협상 발언을 입력하세요.");
+      input.focus();
+      return;
+    }
+    if (state.ap - 1 < requiredAp()) {
+      showToast(`필수 일정용 행동력 ${requiredAp()}를 남겨야 합니다.`);
+      return;
+    }
+
+    const country = diplomacyCountries.find((entry) => entry.id === state.activeCountryId);
+    const session = state.diplomacy[state.activeCountryId];
+    const agenda = ensureDiplomacyAgenda(country.id);
+    if (!agenda) {
+      showToast("이 국가와 논의할 안건을 모두 소진했습니다.");
+      return;
+    }
+    state.ap -= 1;
+    const tone = evaluateDiplomaticTone(text);
+    const skillBonus = Math.min(2, Math.floor((state.skills.diplomacy + state.skills.negotiation) / 70));
+    let proposedImpact = 0;
+    let response;
+
+    if (tone.score > 0) {
+      proposedImpact = 2 + skillBonus;
+      response = `${country.name} 측은 협력 제안을 긍정적으로 검토하겠다고 밝혔습니다. '${agenda.theme}' 분야의 실무 협의를 진행합니다.`;
+    } else if (tone.score < 0) {
+      proposedImpact = -(4 - skillBonus);
+      response = `${country.name} 측은 발언에 유감을 표했습니다. '${agenda.theme}' 협의는 보류되고 외교 관계가 경색됐습니다.`;
+    } else if (tone.positive && tone.negative) {
+      response = `${country.name} 측은 상반된 메시지에 신중한 입장을 보였습니다. 구체적인 협상 조건을 다시 제안해 달라고 요청합니다.`;
+    } else {
+      response = `${country.name} 측은 입장을 확인했습니다. '${agenda.theme}' 안건의 구체적인 상호 조건을 요청합니다.`;
+    }
+
+    const boundedImpact = clamp(session.currentImpact + proposedImpact, -8, 8);
+    const relationshipDelta = boundedImpact - session.currentImpact;
+    session.currentImpact = boundedImpact;
+    session.relationship = Math.min(100, Math.max(-100, session.relationship + relationshipDelta));
+    session.chat.push({ speaker: "user", text });
+    session.chat.push({ speaker: "ai", text: response });
+    session.chat = session.chat.slice(-80);
+    record(`${country.name} 외교 협상 (${agenda.title}): 관계 ${relationshipDelta > 0 ? "+" : ""}${relationshipDelta}. ${text}`);
+    addNews("외교", `${country.name}과 외교 협상`, relationshipDelta > 0
+      ? `${agenda.theme} 협력 제안으로 양국 관계가 개선됐습니다.`
+      : relationshipDelta < 0 ? `강경한 발언으로 ${country.name}과의 협상 분위기가 나빠졌습니다.` : `${agenda.theme} 관련 실무 협의를 이어가기로 했습니다.`);
+    input.value = "";
+    render();
+    saveState();
+    showToast(relationshipDelta > 0
+      ? `${country.name}과의 관계가 ${relationshipDelta} 개선됐습니다. 행동력 1 사용.`
+      : relationshipDelta < 0 ? `부정적 표현으로 관계가 ${Math.abs(relationshipDelta)} 악화됐습니다. 행동력 1 사용.` : "답변을 받았습니다. 행동력 1 사용.");
+  }
+
+  function advanceDiplomaticAgenda() {
+    if (state.role !== "president") return;
+    const session = state.diplomacy[state.activeCountryId];
+    if (session.currentAgendaId && !session.usedAgendas.includes(session.currentAgendaId)) {
+      session.usedAgendas.push(session.currentAgendaId);
+    }
+    session.currentAgendaId = null;
+    session.currentImpact = 0;
+    const agenda = ensureDiplomacyAgenda(state.activeCountryId);
+    renderDiplomacy();
+    saveState();
+    showToast(agenda ? `다음 안건: ${agenda.title}` : "이 국가의 50개 안건을 모두 논의했습니다.");
+  }
+
+  function conductMilitaryExercise() {
+    if (state.role !== "president") return;
+    if (state.ap - 2 < requiredAp() || state.military.defenseBudget < 0.5) {
+      showToast("필수 일정 행동력 또는 국방 예산이 부족합니다.");
+      return;
+    }
+    state.ap -= 2;
+    state.military.defenseBudget = Math.max(0, state.military.defenseBudget - 0.5);
+    state.military.readiness = clamp(state.military.readiness + 6);
+    state.military.security = clamp(state.military.security + 1);
+    state.military.exercises += 1;
+    record("합동 대비 훈련을 실시했습니다. 대비 태세 +6, 국방 예산 -0.5조 원.");
+    addNews("안보", "합동 대비 훈련 실시", "군 대응 태세를 점검하고 합동 대응 능력을 높였습니다.");
+    render();
+    saveState();
+    showToast("훈련 완료 · 대비 태세가 높아졌습니다.");
+  }
+
+  function requestMilitaryDialogue() {
+    if (state.role !== "president") return;
+    if (state.ap - 2 < requiredAp() || state.military.defenseBudget < 0.1) {
+      showToast("필수 일정 행동력 또는 협상 예산이 부족합니다.");
+      return;
+    }
+    state.ap -= 2;
+    state.military.defenseBudget = Math.max(0, state.military.defenseBudget - 0.1);
+    state.military.security = clamp(state.military.security + 5);
+    state.country.stability = clamp(state.country.stability + 2);
+    const country = state.diplomacy[state.activeCountryId];
+    country.relationship = Math.min(100, country.relationship + 2);
+    record(`긴장 완화 회담을 요청했습니다. 안보 안정도 +5, ${diplomacyCountries.find((entry) => entry.id === state.activeCountryId).name}과의 관계 +2.`);
+    addNews("안보 외교", "긴장 완화 회담 요청", "외교 채널을 열어 우발적 긴장 고조를 막기로 했습니다.");
+    render();
+    saveState();
+    showToast("회담 요청 완료 · 안보 안정도가 높아졌습니다.");
   }
 
   function endDay() {
@@ -1447,6 +1772,23 @@
       case "buy-building":
         buyBuilding(button.dataset.buildingId);
         break;
+      case "diplomacy-country":
+        state.activeCountryId = button.dataset.countryId;
+        render();
+        saveState();
+        break;
+      case "diplomacy-send":
+        sendDiplomaticMessage();
+        break;
+      case "diplomacy-next":
+        advanceDiplomaticAgenda();
+        break;
+      case "military-exercise":
+        conductMilitaryExercise();
+        break;
+      case "military-dialogue":
+        requestMilitaryDialogue();
+        break;
       case "attend-schedule":
         attendSchedule(button.dataset.scheduleId);
         break;
@@ -1501,6 +1843,13 @@
   document.addEventListener("input", (event) => {
     const quantity = event.target.closest("[data-quantity-stock]");
     if (quantity) tradeQuantities[quantity.dataset.quantityStock] = quantity.value;
+  });
+
+  document.querySelector('[data-ui="diplomacy-input"]').addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendDiplomaticMessage();
+    }
   });
 
   render();

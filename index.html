@@ -181,6 +181,52 @@
           <div class="election-results" data-ui="election-results"></div>
           <button class="election-continue" type="button" data-action="election-continue">결과 확인 <span aria-hidden="true">→</span></button>
         </section>
+        <section class="view secondary-view" id="view-diplomacy" data-view="diplomacy" aria-labelledby="diplomacy-title" hidden>
+          <div class="page-heading"><p class="eyebrow">PRESIDENTIAL DIPLOMACY</p><h1 id="diplomacy-title">외교</h1><p>정상 간 대화로 안건을 협상하고 국가 관계를 바꿉니다.</p></div>
+          <div class="diplomacy-layout">
+            <nav class="diplomacy-country-list" data-ui="diplomacy-countries" aria-label="외교 상대국"></nav>
+            <section class="diplomacy-panel" aria-label="정상 회담">
+              <header class="diplomacy-counterpart" data-ui="diplomacy-counterpart"></header>
+              <article class="diplomacy-agenda" data-ui="diplomacy-agenda"></article>
+              <div class="diplomacy-chat" data-ui="diplomacy-chat" role="log" aria-live="polite"></div>
+              <div class="diplomacy-compose">
+                <textarea data-ui="diplomacy-input" rows="3" maxlength="280" placeholder="협상 입장을 입력하세요" aria-label="외교 협상 발언"></textarea>
+                <div class="diplomacy-compose-footer"><span data-ui="diplomacy-ap">행동력 1 소모</span><button type="button" data-action="diplomacy-send">발언 보내기 <span aria-hidden="true">→</span></button></div>
+              </div>
+              <button class="next-agenda-button" type="button" data-action="diplomacy-next">안건 마무리 · 다음 안건</button>
+            </section>
+          </div>
+        </section>
+        <section class="view secondary-view" id="view-military" data-view="military" aria-labelledby="military-title" hidden>
+          <div class="page-heading"><p class="eyebrow">NATIONAL DEFENSE</p><h1 id="military-title">군사</h1><p>대비 태세를 관리하고 위기 확산을 막습니다.</p></div>
+          <div class="military-overview"><article><span>대비 태세</span><strong><span data-military-value="readiness">68</span><small>/ 100</small></strong><i><b data-military-bar="readiness"></b></i></article><article><span>안보 안정도</span><strong><span data-military-value="security">72</span><small>/ 100</small></strong><i><b data-military-bar="security"></b></i></article><article><span>국방 예산</span><strong><span data-military-value="defenseBudget">50</span><small>조 원</small></strong><i><b data-military-bar="budget"></b></i></article></div>
+          <div class="military-actions"><article><div><span class="military-action-tag">훈련 · AP 2</span><h2>합동 대비 훈련</h2><p>대응 능력을 높입니다. 대비 태세 +6, 국방 예산 -0.5조 원</p></div><button type="button" data-action="military-exercise">훈련 실시</button></article><article><div><span class="military-action-tag">위기 외교 · AP 2</span><h2>긴장 완화 회담</h2><p>외교 채널을 통해 안보 긴장을 낮춥니다. 안보 안정도 +5</p></div><button type="button" data-action="military-dialogue">회담 요청</button></article></div>
+          <div class="military-record"><span>최근 합동 훈련</span><strong data-ui="exercise-count">0회</strong><span>국방 예산은 국가 현황과 매일 갱신됩니다.</span></div>
+        </section>
+
+        <section class="view secondary-view" id="view-diplomacy" data-view="diplomacy" aria-labelledby="diplomacy-title" hidden>
+          <div class="page-heading"><p class="eyebrow">PRESIDENTIAL DIPLOMACY</p><h1 id="diplomacy-title">외교</h1><p>정상 간 대화로 안건을 협상하고 국가 관계를 바꿉니다.</p></div>
+          <div class="diplomacy-layout">
+            <nav class="diplomacy-country-list" data-ui="diplomacy-countries" aria-label="외교 상대국"></nav>
+            <section class="diplomacy-panel" aria-label="정상 회담">
+              <header class="diplomacy-counterpart" data-ui="diplomacy-counterpart"></header>
+              <article class="diplomacy-agenda" data-ui="diplomacy-agenda"></article>
+              <div class="diplomacy-chat" data-ui="diplomacy-chat" role="log" aria-live="polite"></div>
+              <div class="diplomacy-compose">
+                <textarea data-ui="diplomacy-input" rows="3" maxlength="280" placeholder="협상 입장을 입력하세요" aria-label="외교 협상 발언"></textarea>
+                <div class="diplomacy-compose-footer"><span data-ui="diplomacy-ap">행동력 1 소모</span><button type="button" data-action="diplomacy-send">발언 보내기 <span aria-hidden="true">→</span></button></div>
+              </div>
+              <button class="next-agenda-button" type="button" data-action="diplomacy-next">안건 마무리 · 다음 안건</button>
+            </section>
+          </div>
+        </section>
+
+        <section class="view secondary-view" id="view-military" data-view="military" aria-labelledby="military-title" hidden>
+          <div class="page-heading"><p class="eyebrow">NATIONAL DEFENSE</p><h1 id="military-title">군사</h1><p>대비 태세를 관리하고 위기 확산을 막습니다.</p></div>
+          <div class="military-overview"><article><span>대비 태세</span><strong><span data-military-value="readiness">68</span><small>/ 100</small></strong><i><b data-military-bar="readiness"></b></i></article><article><span>안보 안정도</span><strong><span data-military-value="security">72</span><small>/ 100</small></strong><i><b data-military-bar="security"></b></i></article><article><span>국방 예산</span><strong><span data-military-value="defenseBudget">50</span><small>조 원</small></strong><i><b data-military-bar="budget"></b></i></article></div>
+          <div class="military-actions"><article><div><span class="military-action-tag">훈련 · AP 2</span><h2>합동 대비 훈련</h2><p>대응 능력을 높입니다. 대비 태세 +6, 국방 예산 -0.5조 원</p></div><button type="button" data-action="military-exercise">훈련 실시</button></article><article><div><span class="military-action-tag">위기 외교 · AP 2</span><h2>긴장 완화 회담</h2><p>외교 채널을 통해 안보 긴장을 낮춥니다. 안보 안정도 +5</p></div><button type="button" data-action="military-dialogue">회담 요청</button></article></div>
+          <div class="military-record"><span>최근 합동 훈련</span><strong data-ui="exercise-count">0회</strong><span>국방 예산은 국가 현황과 매일 갱신됩니다.</span></div>
+        </section>
 
         <section class="view secondary-view" id="view-politics" data-view="politics" aria-labelledby="politics-title" hidden>
           <div class="page-heading"><p class="eyebrow">THE NATIONAL ASSEMBLY</p><h1 id="politics-title">정치와 국회</h1><p>법안과 협력, 여론이 정치의 흐름을 만듭니다.</p></div>
@@ -245,9 +291,10 @@
 
         <section class="view secondary-view" id="view-more" data-view="more" aria-labelledby="more-title" hidden>
           <div class="page-heading"><p class="eyebrow">YOUR CAREER, YOUR STORY</p><h1 id="more-title">내 공간</h1><p>인물, 자산과 새로운 기회를 관리합니다.</p></div>
-          <div class="profile-panel"><div class="profile-avatar">윤</div><div><span>대한민국 · 무소속</span><strong>윤 의원</strong><small>초선 · 정치 경력 2년</small></div><span class="profile-level">LV. 03</span></div>
+          <div class="profile-panel"><div class="profile-avatar">윤</div><div><span>대한민국 · 무소속</span><strong data-ui="profile-name">윤 의원</strong><small data-ui="profile-role">초선 · 정치 경력 2년</small></div><span class="profile-level">LV. 03</span></div>
           <div class="more-section-label">개인 관리</div>
           <div class="more-menu"><button type="button" data-route="relationships"><span class="menu-symbol symbol-history">♙</span><span><strong>인물</strong><small>정치 동료와 지역 인맥</small></span><b>→</b></button><button type="button" data-route="assets"><span class="menu-symbol symbol-save">₩</span><span><strong>자산</strong><small>현금·투자·건물 자산 내역</small></span><b>→</b></button><button type="button" data-route="investments"><span class="menu-symbol symbol-achievement">↗</span><span><strong>투자</strong><small>10개 가상 종목 실시간 거래</small></span><b>→</b></button><button type="button" data-route="buildings"><span class="menu-symbol symbol-settings">⌂</span><span><strong>건물</strong><small>정치 기반이 되는 건물 매입</small></span><b>→</b></button></div>
+          <div class="president-more" data-role-only="president" hidden><div class="more-section-label">국가 운영</div><div class="more-menu"><button type="button" data-route="country"><span class="menu-symbol symbol-save">◉</span><span><strong>국가 현황</strong><small>국가 지표와 주요 과제</small></span><b>→</b></button><button type="button" data-route="election"><span class="menu-symbol symbol-achievement">▣</span><span><strong>선거 기록</strong><small>지난 대선 결과와 정치 기록</small></span><b>→</b></button></div></div>
           <div class="more-section-label">게임 관리</div>
           <div class="more-menu"><button type="button" data-action="open-history"><span class="menu-symbol symbol-history">◷</span><span><strong>정치 기록</strong><small>선택과 결과를 돌아봅니다</small></span><b>→</b></button><button type="button" data-action="save-game"><span class="menu-symbol symbol-save">▣</span><span><strong>저장하기</strong><small>현재 진행 상황 저장</small></span><b>→</b></button><button type="button" data-action="reset-game"><span class="menu-symbol symbol-settings">⚙</span><span><strong>새 게임 시작</strong><small>현재 진행 상황을 초기화</small></span><b>→</b></button></div>
           <p class="version-label">국정일지 <span>EARLY ACCESS · 0.1.0</span></p>
@@ -258,8 +305,8 @@
         <button type="button" data-route="home" aria-current="page"><span class="nav-icon nav-home" aria-hidden="true">⌂</span><span>홈</span></button>
         <button type="button" data-route="schedule"><span class="nav-icon" aria-hidden="true">▦</span><span>일정</span></button>
         <button type="button" data-route="politics"><span class="nav-icon" aria-hidden="true">▤</span><span>정치</span></button>
-        <button type="button" data-route="country"><span class="nav-icon" aria-hidden="true">◉</span><span>국가</span></button>
-        <button type="button" data-route="election"><span class="nav-icon" aria-hidden="true">▣</span><span>선거</span></button>
+        <button type="button" data-route="country" data-nav-slot="country"><span class="nav-icon" aria-hidden="true">◉</span><span>국가</span></button>
+        <button type="button" data-route="election" data-nav-slot="election"><span class="nav-icon" aria-hidden="true">▣</span><span>선거</span></button>
         <button type="button" data-route="more"><span class="nav-icon" aria-hidden="true">···</span><span>더보기</span></button>
       </nav>
     </div>
