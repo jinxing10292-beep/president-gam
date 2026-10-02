@@ -14,9 +14,10 @@
       view.classList.toggle("is-active", active);
     });
 
+    const selectedNavRoute = ["stats", "event"].includes(route) ? "home" : route;
     routeButtons.forEach((button) => {
       if (button.matches(".bottom-nav [data-route]")) {
-        if (button.dataset.route === route) button.setAttribute("aria-current", "page");
+        if (button.dataset.route === selectedNavRoute) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
       }
     });
@@ -50,16 +51,19 @@
         navigate("schedule");
         break;
       case "open-briefing":
-        showToast("긴급 브리핑을 확인했습니다. 현장 대응 일정은 준비 중입니다.");
+        navigate("event");
         break;
       case "all-stats":
-        navigate("politics");
+        navigate("stats");
         break;
       case "profile":
         navigate("more");
         break;
       case "activity-feedback":
         showToast("이 메뉴는 다음 게임 시스템 업데이트에서 사용할 수 있습니다.");
+        break;
+      case "event-choice":
+        showToast("선택 결과가 기록됐습니다. 상세 결과는 다음 단계에서 적용됩니다.");
         break;
       default:
         break;
@@ -71,6 +75,16 @@
       document.querySelectorAll(".filter-chip").forEach((chip) => chip.classList.remove("is-selected"));
       button.classList.add("is-selected");
       showToast(`${button.textContent.trim()} 인물 목록`);
+    });
+  });
+
+  document.querySelectorAll("[data-stat-group]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const group = button.dataset.statGroup;
+      document.querySelectorAll("[data-stat-group]").forEach((tab) => tab.classList.toggle("is-selected", tab === button));
+      document.querySelectorAll("[data-ability-panel]").forEach((panel) => {
+        panel.hidden = panel.dataset.abilityPanel !== group;
+      });
     });
   });
 })();
