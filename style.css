@@ -122,8 +122,12 @@ main { width: min(100% - 32px, 1000px); margin: 0 auto; }
 .metric-card > strong > .unit { font-size: 10px; }
 .metric-foot { margin-top: auto; color: var(--muted); font-size: 9px; }
 .metric-chart { position: relative; height: 25px; margin: 2px -3px 1px; }
-.chart-support::before { position: absolute; right: 0; bottom: 3px; left: 0; height: 22px; background: linear-gradient(170deg, transparent 43%, #64a47b 45%, #64a47b 49%, transparent 51%); content: ""; }
-.chart-support::after { position: absolute; right: -1px; bottom: 5px; width: 5px; aspect-ratio: 1; border-radius: 50%; background: #39875c; content: ""; }
+.metric-chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.chart-support::before, .chart-support::after { display: none; content: none; }
+.chart-area { fill: #398ee526; }
+.chart-line { fill: none; stroke: #57b5ff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.chart-point { fill: #a4dbff; stroke: #0b2340; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.trend.is-negative { color: #ff887d; }
 .influence-track, .energy-track { height: 5px; margin: auto 0 7px; overflow: hidden; border-radius: 8px; background: #edf0e9; }
 .influence-track i, .energy-track i { display: block; width: 12%; height: 100%; border-radius: inherit; background: var(--blue); }
 .energy-track i { width: 64%; background: var(--yellow); }
@@ -531,4 +535,143 @@ main { width: min(100% - 32px, 1000px); margin: 0 auto; }
 @media (min-width: 680px) {
   .priority-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stock-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 679px) {
+  .app-shell { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+  .app-header { min-height: 54px; padding: 0 12px; }
+  .brand { gap: 6px; font-size: 13px; }
+  .brand-mark { width: 23px; font-size: 13px; }
+  .header-date span { font-size: 8px; }
+  .header-date strong { font-size: 10px; }
+  .avatar-button { width: 29px; font-size: 12px; }
+  main { width: calc(100% - 24px); }
+  .view { padding: 14px 0 20px; }
+  .home-intro { align-items: center; padding: 0 1px 12px; }
+  .kicker { gap: 5px; margin-bottom: 4px; font-size: 9px; }
+  .home-intro h1 { font-size: 22px; line-height: 1.18; }
+  .career-stamp { min-width: 59px; padding-left: 8px; }
+  .career-stamp span { font-size: 8px; }
+  .career-stamp strong { font-size: 18px; }
+  .career-stamp small { font-size: 8px; }
+  .resource-bar { margin-bottom: 17px; padding: 8px 5px; border-radius: 5px; box-shadow: none; }
+  .resource-item { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 1px; padding: 0 4px 2px; }
+  .resource-icon { display: none; }
+  .resource-label { font-size: 8px; }
+  .resource-item strong { max-width: 100%; font-size: 11px; }
+  .resource-item strong small { font-size: 9px; }
+  .ap-item { padding-bottom: 6px; }
+  .ap-meter { right: 5px; bottom: 0; left: 5px; }
+  .section-heading { gap: 6px; margin-bottom: 8px; }
+  .section-heading .eyebrow { margin-bottom: 1px; font-size: 8px; }
+  .section-heading h2 { font-size: 14px; }
+  .quiet-button { min-height: 27px; font-size: 9px; }
+  .metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  .metric-card { min-height: 82px; padding: 7px 5px; border-radius: 4px; }
+  .metric-top { display: block; overflow: hidden; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+  .metric-top .trend { display: none; }
+  .metric-card > strong { margin-top: auto; font-size: 18px; }
+  .metric-card > strong > span { font-size: 9px; }
+  .metric-card > strong > .unit { font-size: 8px; }
+  .influence-track, .energy-track { height: 3px; margin: 5px 0 0; }
+  .metric-chart { display: block; height: 14px; margin: 2px 0 1px; }
+  .metric-chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .chart-support::before, .chart-support::after { display: none; content: none; }
+  .chart-support::before, .chart-support::after { content: none; }
+  .chart-area { fill: #398ee526; }
+  .chart-line { fill: none; stroke: #57b5ff; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .chart-point { fill: #a4dbff; stroke: #0b2340; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .trend.is-negative { color: #ff887d; }
+  .mini-bars { display: flex; height: 14px; align-items: end; gap: 2px; margin: 2px 0 1px; }
+  .mini-bars i { height: 35%; background: #28547c; }
+  .mini-bars i.is-latest { background: #68c0ff; }
+  .metric-foot { display: block; max-width: 100%; margin-top: 2px; overflow: hidden; color: #8faac7; font-size: 7px; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
+  .dashboard-columns { gap: 13px; margin-top: 15px; }
+  .side-column { gap: 0; }
+  .briefing-card { padding: 12px; border-radius: 5px; }
+  .briefing-card::after { display: none; }
+  .briefing-meta { margin-bottom: 8px; }
+  .briefing-meta time { font-size: 8px; }
+  .briefing-label { font-size: 8px; }
+  .briefing-card .eyebrow { font-size: 8px; }
+  .briefing-card h2 { margin: 3px 0 5px; font-size: 15px; line-height: 1.35; }
+  .briefing-description { display: -webkit-box; overflow: hidden; font-size: 9px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .briefing-bottom { margin-top: 9px; padding-top: 8px; font-size: 9px; }
+  .briefing-bottom button { min-height: 28px; padding: 3px 7px; font-size: 9px; }
+  .quick-actions { display: none; }
+  .news-section { margin-top: 15px; padding-top: 12px; }
+  .news-list { border-top: 0; }
+  .news-item { grid-template-columns: 18px minmax(0, 1fr) auto; gap: 6px; padding: 8px 0; }
+  .news-item:nth-child(n + 2) { display: none; }
+  .news-tag { margin-bottom: 2px; }
+  .news-item h3 { font-size: 10px; }
+  .news-item p { display: none; }
+  .news-item time { font-size: 7px; }
+  .secondary-view { min-height: 0; padding-top: 17px; }
+  .page-heading { margin-bottom: 14px; }
+  .page-heading .eyebrow { margin-bottom: 3px; font-size: 8px; }
+  .page-heading h1 { font-size: 22px; }
+  .page-heading > p:last-child { margin-top: 4px; font-size: 10px; }
+  .page-summary { gap: 3px 8px; padding: 10px 11px; }
+  .page-summary > strong { font-size: 16px; }
+  .end-day-button { min-height: 32px; font-size: 9px; }
+  .schedule-progress { margin: 10px 1px 7px; font-size: 8px; }
+  .daily-agenda { gap: 6px; }
+  .schedule-card { padding: 10px; }
+  .schedule-card > h2 { margin-top: 6px; font-size: 12px; }
+  .schedule-detail { font-size: 8px; }
+  .schedule-card-bottom { gap: 6px; margin-top: 8px; padding-top: 7px; }
+  .schedule-actions button { min-height: 31px; }
+  .activity-catalog { gap: 6px; margin-top: 11px; }
+  .activity-card { grid-template-columns: 31px minmax(0, 1fr) 27px; gap: 7px; padding: 9px; }
+  .catalog-icon { width: 29px; border-radius: 6px; font-size: 15px; }
+  .activity-category { font-size: 8px; }
+  .activity-card h2 { font-size: 11px; }
+  .activity-card p { font-size: 9px; }
+  .effect-list { gap: 3px; margin-top: 5px; }
+  .effect-list span { padding: 1px 4px; font-size: 7px; }
+  .activity-card > button { width: 26px; font-size: 14px; }
+  .country-grid { gap: 5px; margin-top: 8px; }
+  .country-grid article { gap: 1px; padding: 8px; }
+  .country-grid strong { font-size: 16px; }
+  .country-grid article > span { font-size: 8px; }
+  .country-grid em { font-size: 7px; }
+  .inner-heading { margin: 17px 0 8px; }
+  .contact-list { gap: 5px; }
+  .contact-card { grid-template-columns: 32px minmax(0, 1fr) 24px; gap: 7px; padding: 8px; }
+  .contact-avatar { width: 30px; }
+  .assets-total { min-height: 125px; padding: 12px; }
+  .assets-total > strong { font-size: 24px; }
+  .portfolio-list article { min-height: 54px; gap: 7px; }
+  .profile-panel { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 8px; padding: 10px; }
+  .profile-avatar { width: 36px; font-size: 15px; }
+  .more-section-label { margin: 13px 2px 4px; font-size: 8px; }
+  .more-menu { margin-top: 8px; }
+  .more-menu button { grid-template-columns: 30px minmax(0, 1fr) 15px; gap: 7px; min-height: 49px; padding: 5px 1px; }
+  .menu-symbol { width: 27px; border-radius: 5px; font-size: 13px; }
+  .more-menu strong { font-size: 10px; }
+  .more-menu small { font-size: 8px; }
+  .version-label { margin-top: 15px; }
+  .stock-list { gap: 5px; }
+  .stock-card { gap: 7px; padding: 8px; }
+  .stock-controls { padding-top: 6px; }
+  .trade-buttons { gap: 3px; }
+  .share-quantity { width: 44px; min-height: 27px; }
+  .trade-buttons button { min-height: 27px; padding: 0 6px; }
+  .building-list { gap: 6px; }
+  .building-card { grid-template-columns: 29px minmax(0, 1fr) auto; gap: 7px; padding: 9px; }
+  .building-icon { width: 28px; font-size: 14px; }
+  .building-card > button { min-height: 28px; font-size: 7px; }
+  .building-summary { margin-bottom: 10px; padding: 9px 4px; }
+  .building-summary > div { padding: 0 5px; }
+  .priority-list { gap: 6px; }
+  .priority-card { gap: 7px; padding: 9px; }
+  .priority-card > button { min-width: 66px; min-height: 30px; font-size: 8px; }
+  .market-overview { gap: 5px 8px; margin-bottom: 10px; padding: 10px; }
+  .market-overview > div:first-child > strong { font-size: 19px; }
+  .election-results { gap: 5px; }
+  .election-candidate { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 6px; padding: 7px; }
+  .candidate-rank { width: 20px; }
+  .candidate-vote-count strong { font-size: 8px; }
+  .toast { bottom: calc(71px + env(safe-area-inset-bottom)); padding: 9px 12px; font-size: 10px; }
 }

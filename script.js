@@ -83,6 +83,7 @@
       law: 24, popularity: 30, judgment: 40, stamina: 64, stress: 34
     },
     political: { awareness: 25, support: 18, influence: 12, partyInfluence: 8, reputation: 52, trust: 61 },
+    metricHistory: { support: [], influence: [], awareness: [], stamina: [] },
     country: { gdp: 2410, budget: 623, debt: 1275, inflation: 2.1, unemployment: 3.2, happiness: 68, trust: 61, stability: 74 },
     relationships: [
       { id: "seoyun", name: "김서윤", role: "여당 · 재난대책위원", category: "정당", score: 62 },
@@ -91,6 +92,7 @@
       { id: "minjae", name: "최민재", role: "지역구 · 상인회장", category: "지역구", score: 51 }
     ],
     event: "flood-press",
+    eventQueue: [],
     history: [{ date: "2026-10-02", message: "의원 생활 2년 차, 제22대 국회에서 첫 일과를 시작했습니다." }],
     news: []
   };
@@ -253,6 +255,7 @@
         careerDays: clamp(Number(saved.careerDays) || 0, 0, 30),
         role: saved.role === "president" ? "president" : "member",
         election: saved.election && Array.isArray(saved.election.candidates) ? saved.election : null,
+        eventQueue: Array.isArray(saved.eventQueue) ? saved.eventQueue.filter((id) => eventCatalog[id]).slice(0, 20) : [],
         assets: { ...initialState.assets, ...saved.assets },
         investments: Object.fromEntries(stockDefinitions.map((stock) => [
           stock.id,
@@ -271,6 +274,12 @@
           : [],
         skills: { ...initialState.skills, ...saved.skills },
         political: { ...initialState.political, ...saved.political },
+        metricHistory: Object.fromEntries(Object.keys(initialState.metricHistory).map((key) => [
+          key,
+          Array.isArray(saved.metricHistory?.[key])
+            ? saved.metricHistory[key].map(Number).filter(Number.isFinite).slice(-9)
+            : []
+        ])),
         country: { ...initialState.country, ...saved.country },
         schedule: Array.isArray(saved.schedule) ? saved.schedule : createSchedule(Number(saved.day) || initialState.day),
         relationships: Array.isArray(saved.relationships) && saved.relationships.length
@@ -301,6 +310,7 @@
       state.country.stability = clamp(Number(state.country.stability) || initialState.country.stability);
       state.relationships.forEach((person) => { person.score = clamp(Number(person.score) || 0); });
       if (state.event && !eventCatalog[state.event]) state.event = null;
+      if (!state.event && state.eventQueue.length) state.event = state.eventQueue.shift();
       return state;
     } catch {
       return clone(initialState);
@@ -455,6 +465,10 @@
   }
 
   function renderMetrics() {
+    const previousValues = Object.fromEntries(Object.entries(state.metricHistory).map(([key, values]) => [
+      key,
+      values.length > 1 ? values[values.length - 2] : values[0]
+    ]));
     const metricMap = [
       [".metric-support > strong", `${state.political.support}%`],
       [".metric-influence > strong", `${state.political.influence}pt`],
@@ -462,11 +476,89 @@
       [".metric-energy > strong", `${state.skills.stamina}/100`]
     ];
     metricMap.forEach(([selector, value]) => { document.querySelector(selector).textContent = value; });
-    document.querySelector(".influence-track i").style.width = `${state.political.influence}%`;
     document.querySelector(".energy-track i").style.width = `${state.skills.stamina}%`;
-    document.querySelector(".metric-support .metric-top .trend").textContent = `${state.political.support >= initialState.political.support ? "+" : ""}${state.political.support - initialState.political.support}%`;
-    document.querySelector(".metric-reputation .metric-top .trend").textContent = `${state.political.awareness}/100`;
-    document.querySelector(".metric-energy .metric-top .trend").textContent = state.skills.stress > 65 ? "스트레스 높음" : "컨디션 양호";
+    const metricValues = {
+      support: state.political.support,
+      influence: state.political.influence,
+      awareness: state.political.awareness,
+      stamina: state.skills.stamina
+    };
+    const metricUnits = { support: "%p", influence: "pt", awareness: "%p", stamina: "pt" };
+    Object.entries(metricValues).forEach(([key, value]) => {
+      const previous = previousValues[key] ?? value;
+      const delta = value - previous;
+      const trend = document.querySelector(`[data-metric-change="${key}"]`);
+      trend.textContent = key === "stamina"
+        ? state.skills.stress > 65 ? "긴장" : state.skills.stress > 35 ? "보통" : "여유"
+        : `${delta > 0 ? "+" : ""}${delta}${metricUnits[key]}`;
+      trend.classList.toggle("trend-up", delta >= 0);
+      trend.classList.toggle("trend-warn", key === "stamina" && state.skills.stress > 65);
+      trend.classList.toggle("is-negative", delta < 0);
+      if (key !== "stamina") renderSparkline(key, state.metricHistory[key]);
+    });
+    document.querySelector('[data-metric-foot="support"]').textContent = metricSummary("support", metricValues.support, previousValues.support, "%p");
+    document.querySelector('[data-metric-foot="influence"]').textContent = metricSummary("influence", metricValues.influence, previousValues.influence, "pt");
+    document.querySelector('[data-metric-foot="awareness"]').textContent = metricSummary("awareness", metricValues.awareness, previousValues.awareness, "%p");
+    document.querySelector('[data-metric-foot="stamina"]').textContent = `체력 ${state.skills.stamina} · 스트레스 ${state.skills.stress}`;
+    renderHistoryBars("awareness", state.metricHistory.awareness);
+  }
+
+  function metricSummary(key, value, previous, unit) {
+    if (previous === undefined || previous === value) return `현재 ${value}${unit} · 기록 ${state.metricHistory[key].length}회`;
+    const difference = value - previous;
+    return `최근 ${difference > 0 ? "+" : ""}${difference}${unit} 변동`;
+  }
+
+  function renderSparkline(key, history) {
+    if (!history?.length) return;
+    const samples = [...Array(Math.max(0, 9 - history.length)).fill(history[0]), ...history.slice(-9)];
+    const minimum = Math.min(...samples);
+    const maximum = Math.max(...samples);
+    const padding = Math.max(3, (maximum - minimum) * 0.18);
+    const lower = Math.max(0, minimum - padding);
+    const upper = Math.min(100, maximum + padding) || 1;
+    const range = Math.max(1, upper - lower);
+    const points = samples.map((value, index) => ({
+      x: index * 100 / Math.max(1, samples.length - 1),
+      y: 25 - (value - lower) / range * 21
+    }));
+    const path = points.map((point, index) => `${index ? "L" : "M"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
+    const area = `${path} L100 28 L0 28 Z`;
+    document.querySelector(`[data-chart-line="${key}"]`).setAttribute("d", path);
+    document.querySelector(`[data-chart-area="${key}"]`).setAttribute("d", area);
+    const last = points[points.length - 1];
+    const marker = document.querySelector(`[data-chart-point="${key}"]`);
+    marker.setAttribute("cx", last.x.toFixed(1));
+    marker.setAttribute("cy", last.y.toFixed(1));
+    marker.parentElement.setAttribute("aria-label", `최근 ${samples.length}회 기록, ${history[history.length - 1]}점`);
+  }
+
+  function renderHistoryBars(key, history) {
+    if (!history?.length) return;
+    const samples = [...Array(Math.max(0, 9 - history.length)).fill(history[0]), ...history.slice(-9)];
+    const minimum = Math.min(...samples);
+    const range = Math.max(6, Math.max(...samples) - minimum);
+    document.querySelectorAll(`[data-history-bars="${key}"] i`).forEach((bar, index) => {
+      bar.style.height = `${Math.max(12, 18 + (samples[index] - minimum) / range * 82)}%`;
+      bar.classList.toggle("is-latest", index === samples.length - 1);
+    });
+    document.querySelector(`[data-history-bars="${key}"]`).setAttribute("aria-label", `최근 ${samples.length}회 인지도 기록, 현재 ${history[history.length - 1]}점`);
+  }
+
+  function syncMetricHistory() {
+    const values = {
+      support: state.political.support,
+      influence: state.political.influence,
+      awareness: state.political.awareness,
+      stamina: state.skills.stamina
+    };
+    Object.entries(values).forEach(([key, value]) => {
+      const history = state.metricHistory[key];
+      if (!history.length || history[history.length - 1] !== value) {
+        history.push(value);
+        if (history.length > 9) history.shift();
+      }
+    });
   }
 
   function renderAbilities() {
@@ -791,7 +883,9 @@
     }
 
     document.querySelector('[data-ui="event-category"]').textContent = event.category;
-    document.querySelector('[data-ui="event-eyebrow"]').textContent = event.eyebrow;
+    document.querySelector('[data-ui="event-eyebrow"]').textContent = state.eventQueue.length
+      ? `${event.eyebrow} · 대기 이벤트 ${state.eventQueue.length}건`
+      : event.eyebrow;
     document.querySelector('[data-ui="event-title"]').textContent = event.title;
     document.querySelector('[data-ui="event-description"]').textContent = event.description;
     eventChoices.hidden = false;
@@ -881,6 +975,7 @@
   }
 
   function render() {
+    syncMetricHistory();
     renderHeader();
     renderResources();
     renderMetrics();
@@ -985,6 +1080,24 @@
     const available = Object.keys(eventCatalog).filter((id) => id !== "flood-press");
     state.event = available[Math.floor(Math.random() * available.length)];
     addNews("속보", eventCatalog[state.event].title, eventCatalog[state.event].description);
+    return true;
+  }
+
+  function rollScheduleEvent() {
+    const chance = 0.1 + Math.random() * 0.2;
+    if (Math.random() >= chance) return false;
+
+    const eventId = Object.keys(eventCatalog)[Math.floor(Math.random() * Object.keys(eventCatalog).length)];
+    const opensNow = !state.event;
+    if (opensNow) state.event = eventId;
+    else state.eventQueue.push(eventId);
+    const event = eventCatalog[eventId];
+    record(`일정 결정 중 사건 발생: ${event.title}`);
+    addNews("돌발 사건", event.title, event.description);
+    render();
+    saveState();
+    navigate("event");
+    showToast(opensNow ? "일정 중 사건이 발생했습니다." : "새 사건이 발생해 이벤트 목록에 추가됐습니다.");
     return true;
   }
 
@@ -1119,7 +1232,7 @@
     addNews(item.category, item.title, `${item.result}${outcome.context ? ` ${outcome.context}` : ""}`);
     render();
     saveState();
-    showToast(`${item.title} 참석 · AP ${item.ap} 사용`);
+    if (!rollScheduleEvent()) showToast(`${item.title} 참석 · AP ${item.ap} 사용`);
   }
 
   function skipSchedule(id) {
@@ -1136,7 +1249,7 @@
     addNews(item.category, `${item.title} 불참`, "일정에 참석하지 않아 효과가 발생하지 않았습니다.");
     render();
     saveState();
-    showToast(`${item.title} 결석 처리 · AP를 사용하지 않았습니다.`);
+    if (!rollScheduleEvent()) showToast(`${item.title} 결석 처리 · AP를 사용하지 않았습니다.`);
   }
 
   function resolveEvent(index) {
@@ -1149,11 +1262,16 @@
     if (choice.money) state.assets.cash = Math.max(0, state.assets.cash + choice.money);
     record(`${event.title}: ${choice.result}`);
     addNews(event.category, choice.result, `선택: ${choice.title}`);
-    state.event = null;
+    state.event = state.eventQueue.shift() || null;
     render();
     saveState();
-    navigate("home");
-    showToast(choice.result);
+    if (state.event) {
+      navigate("event");
+      showToast("다음 이벤트가 기다리고 있습니다.");
+    } else {
+      navigate("home");
+      showToast(choice.result);
+    }
   }
 
   function conductElection() {
@@ -1198,11 +1316,13 @@
       showToast("남은 일정마다 참석 또는 결석을 선택하세요.");
       return;
     }
-    if (state.event) {
-      state.political.support = clamp(state.political.support - 2);
-      record(`이벤트 대응을 미뤄 지지율이 2 하락했습니다: ${eventCatalog[state.event].title}`);
-      addNews("여론", "현안 대응이 늦어지고 있습니다", "주민과 언론의 후속 대응 요구가 이어집니다.");
+    const unhandledEvents = [state.event, ...state.eventQueue].filter(Boolean);
+    if (unhandledEvents.length) {
+      state.political.support = clamp(state.political.support - 2 * unhandledEvents.length);
+      record(`${unhandledEvents.length}건의 미대응 이벤트로 지지율이 ${2 * unhandledEvents.length} 하락했습니다.`);
+      addNews("여론", "현안 대응이 늦어지고 있습니다", `${unhandledEvents.length}건의 미대응 현안에 후속 대응 요구가 이어집니다.`);
       state.event = null;
+      state.eventQueue = [];
     }
     const next = new Date(`${state.date}T00:00:00Z`);
     next.setUTCDate(next.getUTCDate() + 1);

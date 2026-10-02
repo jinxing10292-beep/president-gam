@@ -67,29 +67,29 @@
               <button class="quiet-button" type="button" data-action="all-stats">전체 지표 <span aria-hidden="true">↗</span></button>
             </div>
             <div class="metric-grid">
-              <article class="metric-card metric-support">
-                <div class="metric-top"><span>국민 지지율</span><span class="trend trend-up">+2.4%</span></div>
+              <article class="metric-card metric-support" data-metric="support">
+                <div class="metric-top"><span>국민 지지율</span><span class="trend trend-up" data-metric-change="support">+0</span></div>
                 <strong>18<span>%</span></strong>
-                <div class="metric-chart chart-support" aria-label="최근 지지율 상승 추세"><i></i></div>
-                <span class="metric-foot">지난 조사 대비 상승</span>
+                <div class="metric-chart chart-support"><svg viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="최근 국민 지지율 변화"><path class="chart-area" data-chart-area="support"></path><path class="chart-line" data-chart-line="support"></path><circle class="chart-point" data-chart-point="support" r="2.5"></circle></svg></div>
+                <span class="metric-foot" data-metric-foot="support">기준 지지율</span>
               </article>
-              <article class="metric-card metric-influence">
-                <div class="metric-top"><span>정치 영향력</span><span class="trend trend-up">+3</span></div>
+              <article class="metric-card metric-influence" data-metric="influence">
+                <div class="metric-top"><span>정치 영향력</span><span class="trend trend-up" data-metric-change="influence">+0</span></div>
                 <strong>12<span class="unit">pt</span></strong>
-                <div class="influence-track"><i></i></div>
-                <span class="metric-foot">초선 의원 평균보다 낮음</span>
+                <div class="metric-chart chart-influence"><svg viewBox="0 0 100 28" preserveAspectRatio="none" role="img" aria-label="최근 정치 영향력 변화"><path class="chart-area" data-chart-area="influence"></path><path class="chart-line" data-chart-line="influence"></path><circle class="chart-point" data-chart-point="influence" r="2.5"></circle></svg></div>
+                <span class="metric-foot" data-metric-foot="influence">기준 영향력</span>
               </article>
-              <article class="metric-card metric-reputation">
-                <div class="metric-top"><span>인지도</span><span class="trend trend-flat">변동 없음</span></div>
+              <article class="metric-card metric-reputation" data-metric="awareness">
+                <div class="metric-top"><span>인지도</span><span class="trend trend-flat" data-metric-change="awareness">+0</span></div>
                 <strong>25<span>%</span></strong>
-                <div class="mini-bars" aria-label="지역 인지도"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <span class="metric-foot">전국 기준 · 낮음</span>
+                <div class="mini-bars" data-history-bars="awareness" role="img" aria-label="최근 인지도 변화"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <span class="metric-foot" data-metric-foot="awareness">기준 인지도</span>
               </article>
-              <article class="metric-card metric-energy">
-                <div class="metric-top"><span>컨디션</span><span class="trend trend-warn">주의 필요</span></div>
+              <article class="metric-card metric-energy" data-metric="stamina">
+                <div class="metric-top"><span>컨디션</span><span class="trend trend-warn" data-metric-change="stamina">보통</span></div>
                 <strong>64<span class="unit">/100</span></strong>
                 <div class="energy-track"><i></i></div>
-                <span class="metric-foot">스트레스 보통 · 체력 양호</span>
+                <span class="metric-foot" data-metric-foot="stamina">체력과 스트레스</span>
               </article>
             </div>
           </section>
