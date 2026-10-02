@@ -4,6 +4,7 @@
   const views = [...document.querySelectorAll("[data-view]")];
   const toast = document.querySelector(".toast");
   const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+  const tradeQuantities = Object.fromEntries(stockDefinitions.map((stock) => [stock.id, "1"]));
   let toastTimer;
 
   const stockDefinitions = [
@@ -563,6 +564,10 @@
 
   function renderInvestments() {
     const list = document.querySelector('[data-ui="stock-list"]');
+    const focusedStockId = document.activeElement?.dataset.quantityStock;
+    list.querySelectorAll("[data-quantity-stock]").forEach((input) => {
+      tradeQuantities[input.dataset.quantityStock] = input.value;
+    });
     const initialTotal = stockDefinitions.reduce((sum, stock) => sum + stock.price, 0);
     const currentTotal = state.market.reduce((sum, stock) => sum + stock.price, 0);
     const index = 1000 * currentTotal / initialTotal;
@@ -606,25 +611,40 @@
       controls.className = "stock-controls";
       const holding = document.createElement("span");
       holding.textContent = `보유 ${shares}주 · 평가액 ${formatWon(stock.price * shares)}`;
+      const quantity = document.createElement("input");
+      quantity.className = "share-quantity";
+      quantity.type = "number";
+      quantity.inputMode = "numeric";
+      quantity.min = "1";
+      quantity.step = "1";
+      quantity.max = String(Math.max(Math.floor(state.assets.cash / stock.price), shares));
+      quantity.value = tradeQuantities[stock.id] ?? "1";
+      quantity.dataset.quantityStock = stock.id;
+      quantity.setAttribute("aria-label", `${stock.name} 거래 수량, 주`);
+      quantity.placeholder = "수량";
       const buttons = document.createElement("div");
       buttons.className = "trade-buttons";
       const buy = document.createElement("button");
       buy.type = "button";
       buy.dataset.action = "buy-stock";
       buy.dataset.stockId = stock.id;
-      buy.textContent = "+1 매수";
+      buy.textContent = "매수";
       buy.disabled = state.assets.cash < stock.price;
       const sell = document.createElement("button");
       sell.type = "button";
       sell.dataset.action = "sell-stock";
       sell.dataset.stockId = stock.id;
-      sell.textContent = "-1 매도";
+      sell.textContent = "매도";
       sell.disabled = shares < 1;
-      buttons.append(buy, sell);
+      buttons.append(quantity, buy, sell);
       controls.append(holding, buttons);
       card.append(upper, controls);
       list.append(card);
     });
+    if (focusedStockId) {
+      const replacement = list.querySelector(`[data-quantity-stock="${CSS.escape(focusedStockId)}"]`);
+      replacement?.focus({ preventScroll: true });
+    }
   }
 
   function renderBuildings() {
@@ -1025,29 +1045,39 @@
   function tradeStock(id, side) {
     const stock = state.market.find((entry) => entry.id === id);
     if (!stock) return;
+    const input = document.querySelector(`[data-quantity-stock="${CSS.escape(id)}"]`);
+    const rawQuantity = input?.value.trim() || "";
+    const quantity = Number(rawQuantity);
+    if (!/^\d+$/.test(rawQuantity) || !Number.isSafeInteger(quantity) || quantity < 1) {
+      showToast("거래할 주식 수량을 1주 이상 입력하세요.");
+      input?.focus();
+      return;
+    }
     if (side === "buy") {
-      if (state.assets.cash < stock.price) {
-        showToast("현금이 부족합니다.");
+      const maximum = Math.floor(state.assets.cash / stock.price);
+      if (quantity > maximum) {
+        showToast(`현재 살 수 있는 최대 수량은 ${maximum}주입니다.`);
         return;
       }
-      state.assets.cash -= stock.price;
-      state.investments[id] += 1;
-      record(`${stock.name} 1주 매수 · ${formatWon(stock.price)}`);
-      addNews("투자", `${stock.name} 1주 매수`, `체결가 ${formatWon(stock.price)} · 보유 ${state.investments[id]}주`);
+      state.assets.cash -= stock.price * quantity;
+      state.investments[id] += quantity;
+      record(`${stock.name} ${quantity}주 매수 · ${formatWon(stock.price * quantity)}`);
+      addNews("투자", `${stock.name} ${quantity}주 매수`, `체결가 ${formatWon(stock.price)} · 보유 ${state.investments[id]}주`);
     } else {
-      if (state.investments[id] < 1) {
-        showToast("매도할 보유 수량이 없습니다.");
+      const held = state.investments[id] || 0;
+      if (quantity > held) {
+        showToast(`보유 수량은 ${held}주입니다. 그보다 많이 팔 수 없습니다.`);
         return;
       }
-      state.investments[id] -= 1;
-      state.assets.cash += stock.price;
-      record(`${stock.name} 1주 매도 · ${formatWon(stock.price)}`);
-      addNews("투자", `${stock.name} 1주 매도`, `체결가 ${formatWon(stock.price)} · 보유 ${state.investments[id]}주`);
+      state.investments[id] -= quantity;
+      state.assets.cash += stock.price * quantity;
+      record(`${stock.name} ${quantity}주 매도 · ${formatWon(stock.price * quantity)}`);
+      addNews("투자", `${stock.name} ${quantity}주 매도`, `체결가 ${formatWon(stock.price)} · 보유 ${state.investments[id]}주`);
     }
     updateAssetTotals();
     render();
     saveState();
-    showToast(`${stock.name} ${side === "buy" ? "매수" : "매도"} 체결 · ${formatWon(stock.price)}`);
+    showToast(`${stock.name} ${quantity}주 ${side === "buy" ? "매수" : "매도"} 체결 · ${formatWon(stock.price * quantity)}`);
   }
 
   function buyBuilding(id) {
@@ -1346,6 +1376,11 @@
       default:
         break;
     }
+  });
+
+  document.addEventListener("input", (event) => {
+    const quantity = event.target.closest("[data-quantity-stock]");
+    if (quantity) tradeQuantities[quantity.dataset.quantityStock] = quantity.value;
   });
 
   render();

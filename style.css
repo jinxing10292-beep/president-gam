@@ -468,9 +468,18 @@ main { width: min(100% - 32px, 1000px); margin: 0 auto; }
 .stock-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid #1a3856; }
 .stock-controls > span { min-width: 0; overflow: hidden; color: #9bb1ca; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 .trade-buttons { display: flex; flex: 0 0 auto; gap: 5px; }
+.share-quantity { width: 55px; min-height: 29px; padding: 0 5px; border: 1px solid #365879; border-radius: 3px; background: #081b31; color: #edf4ff; font-family: var(--font-number); font-size: 9px; text-align: center; }
+.share-quantity:focus { border-color: #58a9ff; outline: 2px solid #58a9ff40; }
 .trade-buttons button { min-height: 29px; padding: 0 8px; border: 1px solid #2c7cb9; border-radius: 3px; background: #123b5d; color: #b9e1ff; font-size: 8px; font-weight: 750; }
 .trade-buttons button:first-child { border-color: #2584d6; background: #126bc1; color: #fff; }
 .trade-buttons button:disabled { border-color: #29415d; background: #162941; color: #7188a0; }
+
+@media (max-width: 370px) {
+  .stock-controls { align-items: flex-start; flex-direction: column; }
+  .trade-buttons { width: 100%; }
+  .trade-buttons .share-quantity { flex: 1; width: auto; }
+  .trade-buttons button { flex: 1; }
+}
 .market-disclaimer { margin: 12px 2px 0; color: #7892af; font-size: 8px; }
 .building-summary { display: grid; grid-template-columns: .7fr 1.35fr 1fr; gap: 0; margin-bottom: 14px; padding: 12px 7px; border: 1px solid #20456c; border-radius: 5px; background: #0b2340; }
 .building-summary > div { display: grid; min-width: 0; gap: 4px; padding: 0 7px; }
