@@ -95,40 +95,6 @@
           </section>
 
           <div class="dashboard-columns">
-            <section class="agenda-section" aria-labelledby="agenda-title">
-              <div class="section-heading">
-                <div>
-                  <p class="eyebrow">FRIDAY, OCT 02</p>
-                  <h2 id="agenda-title">오늘의 일정</h2>
-                </div>
-                <button class="round-button" type="button" data-action="open-schedule" aria-label="일정 전체 보기">↗</button>
-              </div>
-              <div class="agenda-list">
-                <article class="agenda-item is-current">
-                  <time>09:00</time>
-                  <span class="agenda-marker" aria-hidden="true"></span>
-                  <div class="agenda-copy"><span class="agenda-type type-committee">상임위</span><h3>민생경제위원회 회의</h3><p>국회 본관 3층 · 40분</p></div>
-                  <span class="agenda-state">진행 중</span>
-                </article>
-                <article class="agenda-item">
-                  <time>11:30</time>
-                  <span class="agenda-marker" aria-hidden="true"></span>
-                  <div class="agenda-copy"><span class="agenda-type type-local">지역구</span><h3>시장 상인회 간담회</h3><p>중앙시장 · 민원 청취</p></div>
-                </article>
-                <article class="agenda-item">
-                  <time>14:00</time>
-                  <span class="agenda-marker" aria-hidden="true"></span>
-                  <div class="agenda-copy"><span class="agenda-type type-media">언론</span><h3>지역 라디오 인터뷰</h3><p>지역 현안 및 교통 공약</p></div>
-                </article>
-                <article class="agenda-item agenda-open-slot">
-                  <time>16:30</time>
-                  <span class="agenda-marker" aria-hidden="true"></span>
-                  <div class="agenda-copy"><span class="agenda-type type-free">자유 일정</span><h3>비어 있는 시간</h3><p>행동 포인트 3 사용 가능</p></div>
-                  <button class="add-agenda" type="button" data-action="open-activities" aria-label="일정 추가">+</button>
-                </article>
-              </div>
-            </section>
-
             <div class="side-column">
               <section class="briefing-card" aria-labelledby="briefing-title">
                 <div class="briefing-meta"><span class="briefing-label"><i></i> 긴급 브리핑</span><time>08:42 업데이트</time></div>
@@ -166,18 +132,10 @@
         </section>
 
         <section class="view secondary-view" id="view-schedule" data-view="schedule" aria-labelledby="schedule-title" hidden>
-          <div class="page-heading"><p class="eyebrow">YOUR DAY, YOUR DECISIONS</p><h1 id="schedule-title">일정과 활동</h1><p>하루의 행동 포인트를 어디에 쓸지 정해보세요.</p></div>
+          <div class="page-heading"><p class="eyebrow" data-ui="schedule-date">FRIDAY, OCT 02</p><h1 id="schedule-title">오늘의 일정</h1><p>일정마다 참석하거나 결석을 선택하세요. 중요한 일정은 반드시 참석해야 합니다.</p></div>
           <div class="page-summary"><span>오늘 남은 행동</span><strong data-ui="ap-summary">7 <small>/ 10 AP</small></strong><div class="summary-meter"><i></i></div><button class="end-day-button" type="button" data-action="end-day">하루 마감 <span aria-hidden="true">→</span></button></div>
-          <div class="activity-catalog">
-            <article class="activity-card" data-activity-card="field"><span class="catalog-icon tone-green">⌖</span><div><span class="activity-category">지역구 활동 · AP 2</span><h2>지역 주민 만나기</h2><p>민원을 듣고 지역 신뢰와 지지율을 높입니다.</p><div class="effect-list"><span>지역 지지율</span><span>인지도</span></div></div><button data-action="run-activity" data-activity-id="field" type="button" aria-label="지역 주민 만나기 선택">+</button></article>
-            <article class="activity-card" data-activity-card="study"><span class="catalog-icon tone-blue">▤</span><div><span class="activity-category">국회 활동 · AP 3</span><h2>정책 연구</h2><p>정책 능력과 관련 분야 이해도를 쌓습니다.</p><div class="effect-list"><span>정책 능력</span><span>판단력</span></div></div><button data-action="run-activity" data-activity-id="study" type="button" aria-label="정책 연구 선택">+</button></article>
-            <article class="activity-card" data-activity-card="press"><span class="catalog-icon tone-yellow">◎</span><div><span class="activity-category">정치 활동 · AP 2</span><h2>기자 인터뷰</h2><p>주요 현안에 대한 입장을 알리고 인지도를 높입니다.</p><div class="effect-list"><span>인지도</span><span>평판</span></div></div><button data-action="run-activity" data-activity-id="press" type="button" aria-label="기자 인터뷰 선택">+</button></article>
-            <article class="activity-card" data-activity-card="rest"><span class="catalog-icon tone-coral">⌁</span><div><span class="activity-category">개인 활동 · AP 1</span><h2>휴식하기</h2><p>스트레스를 낮추고 컨디션을 회복합니다.</p><div class="effect-list"><span>체력</span><span>스트레스 관리</span></div></div><button data-action="run-activity" data-activity-id="rest" type="button" aria-label="휴식하기 선택">+</button></article>
-            <article class="activity-card" data-activity-card="bill"><span class="catalog-icon tone-blue">§</span><div><span class="activity-category">국회 활동 · AP 3</span><h2>법안 검토</h2><p>법률 이해와 정책 설계 능력을 키웁니다.</p><div class="effect-list"><span>법률 이해도</span><span>정책 능력</span></div></div><button data-action="run-activity" data-activity-id="bill" type="button" aria-label="법안 검토 선택">+</button></article>
-            <article class="activity-card" data-activity-card="committee"><span class="catalog-icon tone-green">▦</span><div><span class="activity-category">국회 활동 · AP 2</span><h2>상임위 질의 준비</h2><p>현안을 분석하고 국회 내 발언 영향력을 높입니다.</p><div class="effect-list"><span>정치력</span><span>인지도</span></div></div><button data-action="run-activity" data-activity-id="committee" type="button" aria-label="상임위 질의 준비 선택">+</button></article>
-            <article class="activity-card" data-activity-card="party"><span class="catalog-icon tone-coral">✦</span><div><span class="activity-category">정치 활동 · AP 2</span><h2>당내 회의 참석</h2><p>동료 의원과 협력해 당내 기반을 다집니다.</p><div class="effect-list"><span>당내 영향력</span><span>관계</span></div></div><button data-action="run-activity" data-activity-id="party" type="button" aria-label="당내 회의 참석 선택">+</button></article>
-            <article class="activity-card" data-activity-card="exercise"><span class="catalog-icon tone-yellow">ϟ</span><div><span class="activity-category">개인 활동 · AP 2</span><h2>운동하기</h2><p>체력을 관리하고 스트레스를 낮춥니다.</p><div class="effect-list"><span>체력</span><span>스트레스 관리</span></div></div><button data-action="run-activity" data-activity-id="exercise" type="button" aria-label="운동하기 선택">+</button></article>
-          </div>
+          <div class="schedule-progress"><span data-ui="schedule-progress">참석 0 · 결석 0 · 남은 일정 3</span><span class="mandatory-hint">● 필수 일정은 건너뛸 수 없습니다</span></div>
+          <div class="daily-agenda" aria-live="polite"></div>
         </section>
 
         <section class="view secondary-view" id="view-stats" data-view="stats" aria-labelledby="stats-title" hidden>
@@ -223,35 +181,67 @@
           <div class="politics-stats"><article><span>당내 영향력</span><strong>8<small>/ 100</small></strong><i><b style="width:8%"></b></i></article><article><span>국회 영향력</span><strong>12<small>/ 100</small></strong><i><b style="width:12%"></b></i></article><article><span>정당 관계</span><strong>보통</strong><em>무소속</em></article></div>
           <div class="section-heading inner-heading"><div><p class="eyebrow">UPCOMING</p><h2>다가오는 의정 활동</h2></div></div>
           <div class="simple-list"><article><span class="list-date">10.04</span><div><strong>민생경제위원회 법안 심사</strong><small>상임위원회 · 본관 3층</small></div><span class="list-arrow">→</span></article><article><span class="list-date">10.06</span><div><strong>본회의 안건 표결</strong><small>본회의 · 국회 본관</small></div><span class="list-arrow">→</span></article></div>
+          <section class="legislative-actions" aria-labelledby="legislative-actions-title">
+            <div class="section-heading inner-heading"><div><p class="eyebrow">YOUR WORK IN THE ASSEMBLY</p><h2 id="legislative-actions-title">의정 활동</h2></div><span class="ap-badge">AP <span data-ui="politics-ap">7</span></span></div>
+            <p class="activity-intro">직접 일정을 수행해 능력과 정치적 기반을 키웁니다. 필수 일정에 쓸 행동력은 자동으로 남겨둡니다.</p>
+            <div class="activity-catalog">
+              <article class="activity-card" data-activity-card="field"><span class="catalog-icon tone-green">⌖</span><div><span class="activity-category">지역구 활동 · AP 2</span><h2>지역 주민 만나기</h2><p>민원을 듣고 지역 신뢰와 지지율을 높입니다.</p><div class="effect-list"><span>지역 지지율</span><span>인지도</span></div></div><button data-action="run-activity" data-activity-id="field" type="button" aria-label="지역 주민 만나기 선택">+</button></article>
+              <article class="activity-card" data-activity-card="study"><span class="catalog-icon tone-blue">▤</span><div><span class="activity-category">국회 활동 · AP 3</span><h2>정책 연구</h2><p>정책 능력과 관련 분야 이해도를 쌓습니다.</p><div class="effect-list"><span>정책 능력</span><span>판단력</span></div></div><button data-action="run-activity" data-activity-id="study" type="button" aria-label="정책 연구 선택">+</button></article>
+              <article class="activity-card" data-activity-card="press"><span class="catalog-icon tone-yellow">◎</span><div><span class="activity-category">정치 활동 · AP 2</span><h2>기자 인터뷰</h2><p>주요 현안에 대한 입장을 알리고 인지도를 높입니다.</p><div class="effect-list"><span>인지도</span><span>평판</span></div></div><button data-action="run-activity" data-activity-id="press" type="button" aria-label="기자 인터뷰 선택">+</button></article>
+              <article class="activity-card" data-activity-card="rest"><span class="catalog-icon tone-coral">⌁</span><div><span class="activity-category">개인 활동 · AP 1</span><h2>휴식하기</h2><p>스트레스를 낮추고 컨디션을 회복합니다.</p><div class="effect-list"><span>체력</span><span>스트레스 관리</span></div></div><button data-action="run-activity" data-activity-id="rest" type="button" aria-label="휴식하기 선택">+</button></article>
+              <article class="activity-card" data-activity-card="bill"><span class="catalog-icon tone-blue">§</span><div><span class="activity-category">국회 활동 · AP 3</span><h2>법안 검토</h2><p>법률 이해와 정책 설계 능력을 키웁니다.</p><div class="effect-list"><span>법률 이해도</span><span>정책 능력</span></div></div><button data-action="run-activity" data-activity-id="bill" type="button" aria-label="법안 검토 선택">+</button></article>
+              <article class="activity-card" data-activity-card="committee"><span class="catalog-icon tone-green">▦</span><div><span class="activity-category">국회 활동 · AP 2</span><h2>상임위 질의 준비</h2><p>현안을 분석하고 국회 내 발언 영향력을 높입니다.</p><div class="effect-list"><span>정치력</span><span>인지도</span></div></div><button data-action="run-activity" data-activity-id="committee" type="button" aria-label="상임위 질의 준비 선택">+</button></article>
+              <article class="activity-card" data-activity-card="party"><span class="catalog-icon tone-coral">✦</span><div><span class="activity-category">정치 활동 · AP 2</span><h2>당내 회의 참석</h2><p>동료 의원과 협력해 당내 기반을 다집니다.</p><div class="effect-list"><span>당내 영향력</span><span>관계</span></div></div><button data-action="run-activity" data-activity-id="party" type="button" aria-label="당내 회의 참석 선택">+</button></article>
+              <article class="activity-card" data-activity-card="exercise"><span class="catalog-icon tone-yellow">ϟ</span><div><span class="activity-category">개인 활동 · AP 2</span><h2>운동하기</h2><p>체력을 관리하고 스트레스를 낮춥니다.</p><div class="effect-list"><span>체력</span><span>스트레스 관리</span></div></div><button data-action="run-activity" data-activity-id="exercise" type="button" aria-label="운동하기 선택">+</button></article>
+            </div>
+          </section>
         </section>
 
         <section class="view secondary-view" id="view-country" data-view="country" aria-labelledby="country-title" hidden>
           <div class="page-heading"><p class="eyebrow">NATIONAL DASHBOARD</p><h1 id="country-title">대한민국 현황</h1><p>국가 지표와 주요 현안을 살펴봅니다.</p></div>
-          <div class="country-banner"><span>대한민국 · 가상 국가</span><strong>안정적인 성장, 더 나은 내일.</strong><div class="banner-meta"><span>국가 신뢰도 <b>61</b></span><span>사회 안정도 <b>74</b></span></div></div>
-          <div class="country-grid"><article><span>국내총생산</span><strong>2,410<small>조 원</small></strong><em class="trend-up">▲ 1.8%</em></article><article><span>국가 예산</span><strong>623<small>조 원</small></strong><em>올해 편성</em></article><article><span>실업률</span><strong>3.2<small>%</small></strong><em class="trend-warn">▲ 0.2%p</em></article><article><span>물가 상승률</span><strong>2.1<small>%</small></strong><em class="trend-up">▼ 0.3%p</em></article><article><span>국가 부채</span><strong>1,275<small>조 원</small></strong><em>GDP 대비 52.9%</em></article><article><span>국민 행복도</span><strong>68<small>/ 100</small></strong><em class="trend-up">▲ 2</em></article></div>
+          <div class="country-banner"><span>대한민국 · 가상 국가</span><strong>오늘의 나라, 오늘의 선택.</strong><div class="banner-meta"><span>국가 신뢰도 <b data-country-value="trust">61</b></span><span>사회 안정도 <b data-country-value="stability">74</b></span></div></div>
+          <div class="country-grid"><article data-country-metric="gdp"><span>국내총생산</span><strong><span data-country-value="gdp">2,410</span><small>조 원</small></strong><em data-country-trend="gdp">기준 지표</em></article><article data-country-metric="budget"><span>국가 예산</span><strong><span data-country-value="budget">623</span><small>조 원</small></strong><em>가용 예산</em></article><article data-country-metric="unemployment"><span>실업률</span><strong><span data-country-value="unemployment">3.2</span><small>%</small></strong><em data-country-trend="unemployment">노동시장</em></article><article data-country-metric="inflation"><span>물가 상승률</span><strong><span data-country-value="inflation">2.1</span><small>%</small></strong><em data-country-trend="inflation">소비자 물가</em></article><article data-country-metric="debt"><span>국가 부채</span><strong><span data-country-value="debt">1,275</span><small>조 원</small></strong><em data-country-trend="debt">GDP 대비 52.9%</em></article><article data-country-metric="happiness"><span>국민 행복도</span><strong><span data-country-value="happiness">68</span><small>/ 100</small></strong><em data-country-trend="happiness">삶의 만족도</em></article></div>
           <div class="section-heading inner-heading"><div><p class="eyebrow">NATIONAL PRIORITIES</p><h2>주요 과제</h2></div></div>
-          <div class="simple-list"><article><span class="priority-dot dot-coral"></span><div><strong>지역 경제 회복</strong><small>소상공인 지원안 논의 중</small></div><span class="priority-status">높음</span></article><article><span class="priority-dot dot-blue"></span><div><strong>청년 고용 확대</strong><small>고용률 개선 정책 검토</small></div><span class="priority-status">보통</span></article><article><span class="priority-dot dot-green"></span><div><strong>재난 대응 체계</strong><small>집중호우 피해 지역 지원</small></div><span class="priority-status">긴급</span></article></div>
+          <p class="priority-intro">국가 지표를 보고 과제를 추진하세요. 성과는 지표와 정치 기반에 크게 반영됩니다.</p>
+          <div class="priority-list" data-ui="priority-list"></div>
         </section>
 
         <section class="view secondary-view" id="view-relationships" data-view="relationships" aria-labelledby="relationships-title" hidden>
-          <div class="page-heading"><p class="eyebrow">YOUR POLITICAL NETWORK</p><h1 id="relationships-title">인간관계</h1><p>함께 일하고 신뢰를 쌓을 사람들입니다.</p></div>
+          <button class="subpage-back" type="button" data-route="more">← 더보기</button><div class="page-heading"><p class="eyebrow">YOUR POLITICAL NETWORK</p><h1 id="relationships-title">인물</h1><p>함께 일하고 신뢰를 쌓을 사람들입니다.</p></div>
           <div class="relationship-summary"><div><span>연결된 인물</span><strong>12<small>명</small></strong></div><div><span>평균 관계도</span><strong>34<small>/ 100</small></strong></div><div class="network-mark" aria-hidden="true">12</div></div>
           <div class="filter-row"><button class="filter-chip is-selected" type="button" data-filter="전체">전체</button><button class="filter-chip" type="button" data-filter="국회">국회</button><button class="filter-chip" type="button" data-filter="정당">정당</button><button class="filter-chip" type="button" data-filter="언론">언론</button><button class="filter-chip" type="button" data-filter="지역구">지역구</button></div>
           <div class="contact-list"><article class="contact-card" data-contact-category="정당"><div class="contact-avatar avatar-sage">김</div><div class="contact-info"><strong>김서윤</strong><span>여당 · 재난대책위원</span><div class="relationship-meter"><i style="width:62%"></i></div></div><b>62</b></article><article class="contact-card" data-contact-category="국회"><div class="contact-avatar avatar-blue">박</div><div class="contact-info"><strong>박도현</strong><span>야당 · 예산결산위원</span><div class="relationship-meter"><i style="width:38%"></i></div></div><b>38</b></article><article class="contact-card" data-contact-category="언론"><div class="contact-avatar avatar-yellow">이</div><div class="contact-info"><strong>이하늘</strong><span>지역 언론 · 기자</span><div class="relationship-meter"><i style="width:27%"></i></div></div><b>27</b></article><article class="contact-card" data-contact-category="지역구"><div class="contact-avatar avatar-coral">최</div><div class="contact-info"><strong>최민재</strong><span>지역구 · 상인회장</span><div class="relationship-meter"><i style="width:51%"></i></div></div><b>51</b></article></div>
         </section>
 
         <section class="view secondary-view" id="view-assets" data-view="assets" aria-labelledby="assets-title" hidden>
-          <div class="page-heading"><p class="eyebrow">PERSONAL FINANCE</p><h1 id="assets-title">자산 관리</h1><p>투명하게 기록되는 개인 자산 현황입니다.</p></div>
-          <div class="assets-total"><span>총 자산</span><strong>₩350,000,000</strong><span class="assets-change">이번 달 <b>+₩1,200,000</b></span><div class="asset-graph" aria-label="최근 자산 완만한 상승 추세"><i></i></div></div>
+          <button class="subpage-back" type="button" data-route="more">← 더보기</button><div class="page-heading"><p class="eyebrow">PERSONAL FINANCE</p><h1 id="assets-title">자산</h1><p>현금, 투자, 건물을 합산한 개인 자산입니다.</p></div>
+          <div class="assets-total"><span>총 자산</span><strong data-ui="asset-total">₩300,000,000</strong><span class="assets-change">현금 보유 <b data-ui="cash-total">₩300,000,000</b></span><div class="asset-graph" aria-label="최근 자산 변동 그래프"><i></i></div></div>
           <div class="section-heading inner-heading"><div><p class="eyebrow">PORTFOLIO</p><h2>자산 구성</h2></div></div>
-          <div class="portfolio-list"><article><span class="portfolio-icon portfolio-cash">₩</span><div><strong>현금</strong><small>입출금 및 예금</small></div><b>₩85,000,000</b><i><b style="width:24%"></b></i></article><article><span class="portfolio-icon portfolio-house">⌂</span><div><strong>부동산</strong><small>주거용 부동산</small></div><b>₩210,000,000</b><i><b style="width:60%"></b></i></article><article><span class="portfolio-icon portfolio-stock">↗</span><div><strong>금융 자산</strong><small>합법적 투자 자산</small></div><b>₩55,000,000</b><i><b style="width:16%"></b></i></article></div>
+          <div class="portfolio-list"><article><span class="portfolio-icon portfolio-cash">₩</span><div><strong>현금</strong><small>입출금 및 예금</small></div><b data-asset-value="cash">₩300,000,000</b><i><b style="width:100%"></b></i></article><article><span class="portfolio-icon portfolio-house">⌂</span><div><strong>건물</strong><small>소유 건물 시가</small></div><b data-asset-value="property">₩0</b><i><b style="width:0%"></b></i></article><article><span class="portfolio-icon portfolio-stock">↗</span><div><strong>투자</strong><small>보유 주식 평가액</small></div><b data-asset-value="finance">₩0</b><i><b style="width:0%"></b></i></article></div>
           <div class="finance-note"><span>기록 원칙</span><p>모든 자산 변화와 활동 비용은 내역에 남습니다.</p><button type="button" data-action="activity-feedback">자산 내역 보기 <span aria-hidden="true">→</span></button></div>
         </section>
 
+        <section class="view secondary-view" id="view-investments" data-view="investments" aria-labelledby="investments-title" hidden>
+          <button class="subpage-back" type="button" data-route="more">← 더보기</button><div class="page-heading"><p class="eyebrow">LIVE MARKET · 10 LISTED</p><h1 id="investments-title">투자</h1><p>가상 시장의 주가가 실시간으로 움직입니다.</p></div>
+          <div class="market-overview"><div><span>시장 지수</span><strong data-ui="market-index">1,000.00</strong></div><div class="market-change" data-ui="market-change">+0.00%</div><div class="market-cash">투자 가능 현금 <strong data-ui="invest-cash">₩300,000,000</strong></div><div class="market-refresh"><i></i><span data-ui="market-clock">실시간 변동 중</span></div></div>
+          <div class="market-heading"><div><span>종목</span><span>현재가 · 등락률</span></div><span>보유 / 거래</span></div>
+          <div class="stock-list" data-ui="stock-list"></div>
+          <p class="market-disclaimer">가상 기업과 가상 시세입니다. 가격은 게임 내에서만 변동합니다.</p>
+        </section>
+
+        <section class="view secondary-view" id="view-buildings" data-view="buildings" aria-labelledby="buildings-title" hidden>
+          <button class="subpage-back" type="button" data-route="more">← 더보기</button><div class="page-heading"><p class="eyebrow">PROPERTY & PUBLIC PRESENCE</p><h1 id="buildings-title">건물</h1><p>건물을 매입해 자산과 정치 기반을 함께 키우세요.</p></div>
+          <div class="building-summary"><div><span>보유 건물</span><strong data-ui="building-count">0</strong></div><div><span>구매 가능 현금</span><strong data-ui="building-cash">₩300,000,000</strong></div><div><span>건물 자산</span><strong data-ui="building-value">₩0</strong></div></div>
+          <div class="building-list" data-ui="building-list"></div>
+        </section>
+
         <section class="view secondary-view" id="view-more" data-view="more" aria-labelledby="more-title" hidden>
-          <div class="page-heading"><p class="eyebrow">YOUR CAREER, YOUR STORY</p><h1 id="more-title">더보기</h1><p>정치 인생의 기록과 설정을 관리합니다.</p></div>
+          <div class="page-heading"><p class="eyebrow">YOUR CAREER, YOUR STORY</p><h1 id="more-title">내 공간</h1><p>인물, 자산과 새로운 기회를 관리합니다.</p></div>
           <div class="profile-panel"><div class="profile-avatar">윤</div><div><span>대한민국 · 무소속</span><strong>윤 의원</strong><small>초선 · 정치 경력 2년</small></div><span class="profile-level">LV. 03</span></div>
-          <div class="more-menu"><button type="button" data-action="open-history"><span class="menu-symbol symbol-history">◷</span><span><strong>정치 기록</strong><small>선택과 결과를 돌아봅니다</small></span><b>→</b></button><button type="button" data-action="activity-feedback"><span class="menu-symbol symbol-achievement">✳</span><span><strong>업적과 목표</strong><small>나만의 정치 목표를 세웁니다</small></span><b>→</b></button><button type="button" data-action="save-game"><span class="menu-symbol symbol-save">▣</span><span><strong>저장 및 불러오기</strong><small>현재 진행 상황 관리</small></span><b>→</b></button><button type="button" data-action="reset-game"><span class="menu-symbol symbol-settings">⚙</span><span><strong>새 게임 시작</strong><small>현재 진행 상황을 초기화합니다</small></span><b>→</b></button></div>
+          <div class="more-section-label">개인 관리</div>
+          <div class="more-menu"><button type="button" data-route="relationships"><span class="menu-symbol symbol-history">♙</span><span><strong>인물</strong><small>정치 동료와 지역 인맥</small></span><b>→</b></button><button type="button" data-route="assets"><span class="menu-symbol symbol-save">₩</span><span><strong>자산</strong><small>현금·투자·건물 자산 내역</small></span><b>→</b></button><button type="button" data-route="investments"><span class="menu-symbol symbol-achievement">↗</span><span><strong>투자</strong><small>10개 가상 종목 실시간 거래</small></span><b>→</b></button><button type="button" data-route="buildings"><span class="menu-symbol symbol-settings">⌂</span><span><strong>건물</strong><small>정치 기반이 되는 건물 매입</small></span><b>→</b></button></div>
+          <div class="more-section-label">게임 관리</div>
+          <div class="more-menu"><button type="button" data-action="open-history"><span class="menu-symbol symbol-history">◷</span><span><strong>정치 기록</strong><small>선택과 결과를 돌아봅니다</small></span><b>→</b></button><button type="button" data-action="save-game"><span class="menu-symbol symbol-save">▣</span><span><strong>저장하기</strong><small>현재 진행 상황 저장</small></span><b>→</b></button><button type="button" data-action="reset-game"><span class="menu-symbol symbol-settings">⚙</span><span><strong>새 게임 시작</strong><small>현재 진행 상황을 초기화</small></span><b>→</b></button></div>
           <p class="version-label">국정일지 <span>EARLY ACCESS · 0.1.0</span></p>
         </section>
       </main>
@@ -261,8 +251,6 @@
         <button type="button" data-route="schedule"><span class="nav-icon" aria-hidden="true">▦</span><span>일정</span></button>
         <button type="button" data-route="politics"><span class="nav-icon" aria-hidden="true">▤</span><span>정치</span></button>
         <button type="button" data-route="country"><span class="nav-icon" aria-hidden="true">◉</span><span>국가</span></button>
-        <button type="button" data-route="relationships"><span class="nav-icon" aria-hidden="true">♙</span><span>인물</span></button>
-        <button type="button" data-route="assets"><span class="nav-icon" aria-hidden="true">₩</span><span>자산</span></button>
         <button type="button" data-route="more"><span class="nav-icon" aria-hidden="true">···</span><span>더보기</span></button>
       </nav>
     </div>

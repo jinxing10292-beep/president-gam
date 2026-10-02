@@ -1,24 +1,78 @@
 (() => {
-  const saveKey = "national-diary-save-v1";
+  const saveKey = "national-diary-save-v2";
   const routes = [...document.querySelectorAll("[data-route]")];
   const views = [...document.querySelectorAll("[data-view]")];
   const toast = document.querySelector(".toast");
   const weekdayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
   let toastTimer;
 
+  const stockDefinitions = [
+    { id: "NEX", name: "넥스칩", sector: "반도체", price: 118500 },
+    { id: "SOL", name: "솔라웨이브", sector: "신재생에너지", price: 54200 },
+    { id: "MED", name: "메디온", sector: "바이오", price: 64900 },
+    { id: "HNB", name: "한빛은행", sector: "금융", price: 42300 },
+    { id: "MOB", name: "모빌리티랩", sector: "모빌리티", price: 76400 },
+    { id: "CLO", name: "클라우드9", sector: "IT서비스", price: 93600 },
+    { id: "BOK", name: "보국건설", sector: "건설", price: 31200 },
+    { id: "ONE", name: "온누리식품", sector: "식품", price: 38700 },
+    { id: "MIR", name: "미래전력", sector: "전력", price: 27500 },
+    { id: "SBL", name: "새봄바이오", sector: "바이오", price: 81600 }
+  ];
+
+  const buildings = [
+    { id: "district-office", name: "지역구 민원센터", kind: "지역 사무소", price: 45000000, icon: "⌂", description: "주민을 만날 거점을 마련합니다.", effects: "인지도 +3 · 지지율 +2", political: { awareness: 3, support: 2 }, daily: { awareness: 1 } },
+    { id: "policy-center", name: "정책연구원", kind: "정책 시설", price: 80000000, icon: "▤", description: "전문 정책 인력과 연구 기반을 확보합니다.", effects: "정책 능력 +4 · 영향력 +2", skills: { policy: 4 }, political: { influence: 2 }, daily: { influence: 1 } },
+    { id: "media-studio", name: "시민미디어센터", kind: "언론 시설", price: 95000000, icon: "◉", description: "정책과 활동을 시민에게 더 널리 알립니다.", effects: "인지도 +5 · 대중성 +3", skills: { popularity: 3 }, political: { awareness: 5 }, daily: { awareness: 1 } },
+    { id: "community-hall", name: "생활문화회관", kind: "주민 시설", price: 125000000, icon: "✦", description: "지역 모임과 공공 프로그램을 운영합니다.", effects: "지지율 +5 · 신뢰도 +3", political: { support: 5, trust: 3 }, daily: { support: 1 } }
+  ];
+
+  const nationalPriorities = [
+    { id: "local-economy", title: "지역 경제 회복", detail: "소상공인 금융 지원과 지역 상권 활성화", ap: 3, budget: 4, effects: "GDP +8조 · 실업률 -0.4%p · 행복도 +6", country: { gdp: 8, unemployment: -0.4, happiness: 6, stability: 2 }, political: { support: 4, influence: 3 }, skills: { politics: 2 } },
+    { id: "youth-jobs", title: "청년 고용 확대", detail: "청년 채용 지원과 직업 훈련 기회 확대", ap: 3, budget: 6, effects: "GDP +10조 · 실업률 -0.6%p · 행복도 +7", country: { gdp: 10, unemployment: -0.6, happiness: 7, stability: 1 }, political: { support: 3, awareness: 3 }, skills: { policy: 2, economy: 1 } },
+    { id: "disaster-system", title: "재난 대응 체계 개선", detail: "현장 대응 인력과 지역 대피 기반 확충", ap: 2, budget: 3, effects: "행복도 +5 · 신뢰도 +6 · 안정도 +8", country: { happiness: 5, trust: 6, stability: 8, debt: 1 }, political: { support: 4, trust: 4 }, skills: { administration: 2 } }
+  ];
+
+  const scheduleTemplates = [
+    [
+      { id: "committee", time: "09:00", category: "상임위", title: "민생경제위원회 회의", place: "국회 본관 3층", detail: "지역 상권 회복 지원안 심사", ap: 3, mandatory: true, skills: { policy: 2, administration: 1, stamina: -2 }, political: { influence: 1 }, result: "상임위원회에서 지역 상권 회복 지원안 심사에 참석했습니다.", skipPenalty: {} },
+      { id: "market", time: "11:30", category: "지역구", title: "시장 상인회 간담회", place: "중앙시장", detail: "상인 민원 청취 및 지원안 논의", ap: 2, mandatory: false, skills: { negotiation: 1, popularity: 1, stamina: -2 }, political: { support: 2, awareness: 1 }, relationships: { minjae: 3 }, result: "중앙시장 상인회와 현장 간담회를 진행했습니다.", skipPenalty: { support: -1 } },
+      { id: "interview", time: "14:00", category: "언론", title: "지역 라디오 인터뷰", place: "한빛 FM 스튜디오", detail: "지역 교통 공약과 민생 현안", ap: 2, mandatory: false, skills: { speech: 2, stamina: -1 }, political: { awareness: 3, reputation: 1 }, relationships: { haneul: 2 }, result: "지역 라디오 인터뷰에서 교통 공약과 민생 대책을 설명했습니다.", skipPenalty: { awareness: -1 } }
+    ],
+    [
+      { id: "plenary", time: "09:30", category: "본회의", title: "민생 법안 본회의 표결", place: "국회 본회의장", detail: "지역 소상공인 금융 지원안", ap: 3, mandatory: true, skills: { politics: 2, law: 1, stamina: -2 }, political: { influence: 2, trust: 1 }, result: "본회의 표결에 참석해 민생 법안 처리에 참여했습니다.", skipPenalty: {} },
+      { id: "constituents", time: "12:00", category: "지역구", title: "주민 민원 상담", place: "지역구 사무실", detail: "교통·주거 관련 민원 면담", ap: 2, mandatory: false, skills: { judgment: 1, popularity: 1 }, political: { support: 2 }, relationships: { minjae: 1 }, result: "주민 민원을 듣고 관계 기관에 확인을 요청했습니다.", skipPenalty: { support: -1 } },
+      { id: "policy-brief", time: "15:00", category: "정책", title: "청년 일자리 정책 브리핑", place: "의원회관 2층", detail: "청년 고용 개선안 검토", ap: 2, mandatory: false, skills: { economy: 1, policy: 2, stamina: -1 }, political: { influence: 1 }, result: "청년 고용 정책 브리핑을 듣고 개선 의견을 전달했습니다.", skipPenalty: {} }
+    ],
+    [
+      { id: "party-session", time: "09:00", category: "필수 회의", title: "국회 긴급 현안 보고", place: "국회 본관 2층", detail: "재난 대응 및 예산 조정 협의", ap: 3, mandatory: true, skills: { administration: 2, politics: 1, stamina: -2 }, political: { influence: 1, trust: 1 }, relationships: { seoyun: 1 }, result: "긴급 현안 보고에 참석해 재난 예산 논의에 참여했습니다.", skipPenalty: {} },
+      { id: "field-check", time: "13:00", category: "현장", title: "통학로 안전 현장 점검", place: "새빛초등학교 앞", detail: "학부모 및 관계 기관 합동 점검", ap: 2, mandatory: false, skills: { judgment: 1, administration: 1, stamina: -2 }, political: { support: 2, awareness: 1 }, relationships: { seoyun: 1 }, result: "학부모와 관계 기관 담당자들과 통학로 안전을 점검했습니다.", skipPenalty: { support: -1 } },
+      { id: "party-meeting", time: "16:00", category: "정치", title: "여야 정책 실무 협의", place: "의원회관 4층", detail: "민생 법안 처리 일정 조율", ap: 2, mandatory: false, skills: { negotiation: 2, stamina: -1 }, political: { partyInfluence: 1, influence: 1 }, relationships: { dohyun: 2, seoyun: 1 }, result: "여야 실무 협의에서 민생 법안 처리 일정을 조율했습니다.", skipPenalty: {} }
+    ]
+  ];
+
+  function createSchedule(day) {
+    const templateIndex = ((day - 3) % scheduleTemplates.length + scheduleTemplates.length) % scheduleTemplates.length;
+    return clone(scheduleTemplates[templateIndex]).map((item) => ({ ...item, status: "pending" }));
+  }
+
   const initialState = {
     date: "2026-10-02",
     day: 3,
     ap: 7,
     maxAp: 10,
-    assets: { cash: 85000000, property: 210000000, finance: 55000000 },
+    schedule: createSchedule(3),
+    assets: { cash: 300000000, property: 0, finance: 0 },
+    investments: Object.fromEntries(stockDefinitions.map((stock) => [stock.id, 0])),
+    market: stockDefinitions.map((stock) => ({ ...stock, previousClose: stock.price, change: 0 })),
+    buildings: [],
+    completedPriorities: [],
     skills: {
       politics: 45, leadership: 38, negotiation: 32, speech: 28,
       policy: 26, administration: 22, diplomacy: 18, economy: 22,
       law: 24, popularity: 30, judgment: 40, stamina: 64, stress: 34
     },
     political: { awareness: 25, support: 18, influence: 12, partyInfluence: 8, reputation: 52, trust: 61 },
-    country: { gdp: 2410, budget: 623, debt: 1275, inflation: 2.1, unemployment: 3.2, happiness: 68 },
+    country: { gdp: 2410, budget: 623, debt: 1275, inflation: 2.1, unemployment: 3.2, happiness: 68, trust: 61, stability: 74 },
     relationships: [
       { id: "seoyun", name: "김서윤", role: "여당 · 재난대책위원", category: "정당", score: 62 },
       { id: "dohyun", name: "박도현", role: "야당 · 예산결산위원", category: "국회", score: 38 },
@@ -131,9 +185,25 @@
         ...clone(initialState),
         ...saved,
         assets: { ...initialState.assets, ...saved.assets },
+        investments: Object.fromEntries(stockDefinitions.map((stock) => [
+          stock.id,
+          Math.max(0, Math.floor(Number(saved.investments?.[stock.id]) || 0))
+        ])),
+        market: stockDefinitions.map((stock) => {
+          const savedStock = saved.market?.find((entry) => entry.id === stock.id);
+          const price = Math.max(100, Number(savedStock?.price) || stock.price);
+          return { ...stock, price, previousClose: Math.max(100, Number(savedStock?.previousClose) || stock.price), change: 0 };
+        }),
+        buildings: Array.isArray(saved.buildings)
+          ? [...new Set(saved.buildings)].filter((id) => buildings.some((building) => building.id === id))
+          : [],
+        completedPriorities: Array.isArray(saved.completedPriorities)
+          ? [...new Set(saved.completedPriorities)].filter((id) => nationalPriorities.some((priority) => priority.id === id))
+          : [],
         skills: { ...initialState.skills, ...saved.skills },
         political: { ...initialState.political, ...saved.political },
         country: { ...initialState.country, ...saved.country },
+        schedule: Array.isArray(saved.schedule) ? saved.schedule : createSchedule(Number(saved.day) || initialState.day),
         relationships: Array.isArray(saved.relationships) && saved.relationships.length
           ? saved.relationships
           : clone(initialState.relationships),
@@ -143,11 +213,23 @@
       state.ap = clamp(Number(state.ap) || 0, 0, state.maxAp);
       state.day = Math.max(1, Number(state.day) || initialState.day);
       state.date = /^\d{4}-\d{2}-\d{2}$/.test(state.date) ? state.date : initialState.date;
+      state.schedule = state.schedule.filter((item) => scheduleTemplates.flat().some((template) => template.id === item.id))
+        .map((item) => ({ ...scheduleTemplates.flat().find((template) => template.id === item.id), ...item }));
+      if (!state.schedule.length) state.schedule = createSchedule(state.day);
       state.assets.cash = Math.max(0, Number(state.assets.cash) || 0);
       state.assets.property = Math.max(0, Number(state.assets.property) || 0);
-      state.assets.finance = Math.max(0, Number(state.assets.finance) || 0);
+      state.assets.finance = state.market.reduce((total, stock) => total + stock.price * state.investments[stock.id], 0);
+      state.assets.property = state.buildings.reduce((total, id) => total + buildings.find((building) => building.id === id).price, 0);
       for (const key of Object.keys(state.skills)) state.skills[key] = clamp(Number(state.skills[key]) || 0);
       for (const key of Object.keys(state.political)) state.political[key] = clamp(Number(state.political[key]) || 0);
+      state.country.gdp = Math.max(0, Number(state.country.gdp) || initialState.country.gdp);
+      state.country.budget = Math.max(0, Number(state.country.budget) || initialState.country.budget);
+      state.country.debt = Math.max(0, Number(state.country.debt) || initialState.country.debt);
+      state.country.inflation = Math.max(0, Number(state.country.inflation) || initialState.country.inflation);
+      state.country.unemployment = Math.max(0, Number(state.country.unemployment) || initialState.country.unemployment);
+      state.country.happiness = clamp(Number(state.country.happiness) || initialState.country.happiness);
+      state.country.trust = clamp(Number(state.country.trust) || initialState.country.trust);
+      state.country.stability = clamp(Number(state.country.stability) || initialState.country.stability);
       state.relationships.forEach((person) => { person.score = clamp(Number(person.score) || 0); });
       if (state.event && !eventCatalog[state.event]) state.event = null;
       return state;
@@ -184,6 +266,16 @@
     });
   }
 
+  function changeCountry(changes) {
+    Object.entries(changes || {}).forEach(([key, delta]) => {
+      if (!Object.hasOwn(state.country, key)) return;
+      const value = state.country[key] + delta;
+      state.country[key] = ["happiness", "trust", "stability"].includes(key)
+        ? clamp(value)
+        : Math.max(0, value);
+    });
+  }
+
   function changeRelationships(changes) {
     Object.entries(changes || {}).forEach(([id, delta]) => {
       const person = state.relationships.find((candidate) => candidate.id === id);
@@ -198,6 +290,7 @@
   function formatKoreanAsset(amount) {
     const hundredMillion = Math.floor(amount / 100000000);
     const tenThousand = Math.floor((amount % 100000000) / 10000);
+    if (hundredMillion > 0 && tenThousand === 0) return `${hundredMillion}억`;
     if (hundredMillion > 0) return `${hundredMillion}억 ${new Intl.NumberFormat("ko-KR").format(tenThousand)}만`;
     return `${new Intl.NumberFormat("ko-KR").format(Math.floor(amount / 10000))}만`;
   }
@@ -205,6 +298,13 @@
   function dateParts() {
     const date = new Date(`${state.date}T00:00:00Z`);
     return { date, weekday: weekdayNames[date.getUTCDay()] };
+  }
+
+  function requiredAp(exceptId = null) {
+    return state.schedule.reduce((total, item) => {
+      if (item.status !== "pending" || !item.mandatory || item.id === exceptId) return total;
+      return total + item.ap;
+    }, 0);
   }
 
   function navigate(route) {
@@ -215,7 +315,9 @@
       view.hidden = !active;
       view.classList.toggle("is-active", active);
     });
-    const selectedNavRoute = ["stats", "event"].includes(route) ? "home" : route;
+    const selectedNavRoute = ["stats", "event"].includes(route)
+      ? "home"
+      : ["relationships", "assets", "investments", "buildings"].includes(route) ? "more" : route;
     routes.forEach((button) => {
       if (!button.matches(".bottom-nav [data-route]")) return;
       if (button.dataset.route === selectedNavRoute) button.setAttribute("aria-current", "page");
@@ -261,8 +363,8 @@
     const { date, weekday } = dateParts();
     document.querySelector(".header-date span").textContent = `대한민국 · ${weekday}`;
     document.querySelector(".header-date strong").textContent = `${date.getUTCFullYear()}년 ${date.getUTCMonth() + 1}월 ${date.getUTCDate()}일`;
-    const dateKicker = document.querySelector(".agenda-section .eyebrow");
-    dateKicker.textContent = `${weekday.toUpperCase()}, ${String(date.getUTCMonth() + 1).padStart(2, "0")} ${String(date.getUTCDate()).padStart(2, "0")}`;
+    const dateLabel = `${weekday.toUpperCase()}, ${String(date.getUTCMonth() + 1).padStart(2, "0")} ${String(date.getUTCDate()).padStart(2, "0")}`;
+    document.querySelector('[data-ui="schedule-date"]').textContent = dateLabel;
   }
 
   function renderResources() {
@@ -308,8 +410,10 @@
   }
 
   function renderAssets() {
+    updateAssetTotals();
     const total = state.assets.cash + state.assets.property + state.assets.finance;
     document.querySelector(".assets-total > strong").textContent = formatWon(total);
+    document.querySelector('[data-ui="cash-total"]').textContent = formatWon(state.assets.cash);
     const values = document.querySelectorAll(".portfolio-list article > b");
     values[0].textContent = formatWon(state.assets.cash);
     values[1].textContent = formatWon(state.assets.property);
@@ -318,6 +422,174 @@
     bars[0].style.width = `${total ? state.assets.cash / total * 100 : 0}%`;
     bars[1].style.width = `${total ? state.assets.property / total * 100 : 0}%`;
     bars[2].style.width = `${total ? state.assets.finance / total * 100 : 0}%`;
+  }
+
+  function updateAssetTotals() {
+    state.assets.property = state.buildings.reduce((sum, id) => sum + (buildings.find((building) => building.id === id)?.price || 0), 0);
+    state.assets.finance = state.market.reduce((sum, stock) => sum + stock.price * (state.investments[stock.id] || 0), 0);
+  }
+
+  function renderCountry() {
+    const values = {
+      gdp: new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 }).format(state.country.gdp),
+      budget: new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 }).format(state.country.budget),
+      unemployment: state.country.unemployment.toFixed(1),
+      inflation: state.country.inflation.toFixed(1),
+      debt: new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 }).format(state.country.debt),
+      happiness: Math.round(state.country.happiness),
+      trust: Math.round(state.country.trust),
+      stability: Math.round(state.country.stability)
+    };
+    Object.entries(values).forEach(([key, value]) => {
+      const element = document.querySelector(`[data-country-value="${key}"]`);
+      if (element) element.textContent = value;
+    });
+    const debtRatio = state.country.gdp ? state.country.debt / state.country.gdp * 100 : 0;
+    document.querySelector('[data-country-trend="debt"]').textContent = `GDP 대비 ${debtRatio.toFixed(1)}%`;
+    document.querySelector('[data-country-trend="gdp"]').textContent = `시장 평균 ${marketChangePercent() >= 0 ? "+" : ""}${marketChangePercent().toFixed(2)}%`;
+    document.querySelector('[data-country-trend="unemployment"]').textContent = state.country.unemployment > 4 ? "고용 부담 높음" : "고용시장 안정";
+    document.querySelector('[data-country-trend="inflation"]').textContent = state.country.inflation > 3.5 ? "물가 부담 높음" : "물가 안정권";
+    document.querySelector('[data-country-trend="happiness"]').textContent = `국가 신뢰도 ${Math.round(state.country.trust)}`;
+  }
+
+  function renderPriorities() {
+    const list = document.querySelector('[data-ui="priority-list"]');
+    list.replaceChildren();
+    nationalPriorities.forEach((priority) => {
+      const completed = state.completedPriorities.includes(priority.id);
+      const card = document.createElement("article");
+      card.className = `priority-card${completed ? " is-complete" : ""}`;
+      const info = document.createElement("div");
+      info.className = "priority-copy";
+      const title = document.createElement("strong");
+      title.textContent = priority.title;
+      const detail = document.createElement("small");
+      detail.textContent = priority.detail;
+      const effects = document.createElement("span");
+      effects.className = "priority-effects";
+      effects.textContent = priority.effects;
+      info.append(title, detail, effects);
+      const action = document.createElement("button");
+      action.type = "button";
+      action.dataset.action = "complete-priority";
+      action.dataset.priorityId = priority.id;
+      action.textContent = completed ? "완료" : `추진 · AP ${priority.ap}`;
+      action.disabled = completed || state.ap - priority.ap < requiredAp() || state.country.budget < priority.budget;
+      card.append(info, action);
+      list.append(card);
+    });
+  }
+
+  function marketChangePercent() {
+    if (!state.market.length) return 0;
+    const current = state.market.reduce((sum, stock) => sum + stock.price, 0);
+    const previous = state.market.reduce((sum, stock) => sum + stock.previousClose, 0);
+    return previous ? (current - previous) / previous * 100 : 0;
+  }
+
+  function renderInvestments() {
+    const list = document.querySelector('[data-ui="stock-list"]');
+    const initialTotal = stockDefinitions.reduce((sum, stock) => sum + stock.price, 0);
+    const currentTotal = state.market.reduce((sum, stock) => sum + stock.price, 0);
+    const index = 1000 * currentTotal / initialTotal;
+    const change = marketChangePercent();
+    document.querySelector('[data-ui="market-index"]').textContent = index.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const changeElement = document.querySelector('[data-ui="market-change"]');
+    changeElement.textContent = `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
+    changeElement.classList.toggle("is-negative", change < 0);
+    document.querySelector('[data-ui="invest-cash"]').textContent = formatWon(state.assets.cash);
+    document.querySelector('[data-ui="market-clock"]').textContent = `실시간 · ${new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`;
+    list.replaceChildren();
+
+    state.market.forEach((stock) => {
+      const shares = state.investments[stock.id] || 0;
+      const stockChange = stock.previousClose ? (stock.price - stock.previousClose) / stock.previousClose * 100 : 0;
+      const card = document.createElement("article");
+      card.className = "stock-card";
+      const upper = document.createElement("div");
+      upper.className = "stock-main";
+      const identity = document.createElement("div");
+      identity.className = "stock-identity";
+      const ticker = document.createElement("span");
+      ticker.className = "stock-ticker";
+      ticker.textContent = stock.id;
+      const name = document.createElement("strong");
+      name.textContent = stock.name;
+      const sector = document.createElement("small");
+      sector.textContent = stock.sector;
+      identity.append(ticker, name, sector);
+      const quote = document.createElement("div");
+      quote.className = "stock-quote";
+      const price = document.createElement("strong");
+      price.textContent = formatWon(stock.price);
+      const changeLabel = document.createElement("span");
+      changeLabel.className = stockChange >= 0 ? "stock-up" : "stock-down";
+      changeLabel.textContent = `${stockChange >= 0 ? "▲" : "▼"} ${Math.abs(stockChange).toFixed(2)}%`;
+      quote.append(price, changeLabel);
+      upper.append(identity, quote);
+
+      const controls = document.createElement("div");
+      controls.className = "stock-controls";
+      const holding = document.createElement("span");
+      holding.textContent = `보유 ${shares}주 · 평가액 ${formatWon(stock.price * shares)}`;
+      const buttons = document.createElement("div");
+      buttons.className = "trade-buttons";
+      const buy = document.createElement("button");
+      buy.type = "button";
+      buy.dataset.action = "buy-stock";
+      buy.dataset.stockId = stock.id;
+      buy.textContent = "+1 매수";
+      buy.disabled = state.assets.cash < stock.price;
+      const sell = document.createElement("button");
+      sell.type = "button";
+      sell.dataset.action = "sell-stock";
+      sell.dataset.stockId = stock.id;
+      sell.textContent = "-1 매도";
+      sell.disabled = shares < 1;
+      buttons.append(buy, sell);
+      controls.append(holding, buttons);
+      card.append(upper, controls);
+      list.append(card);
+    });
+  }
+
+  function renderBuildings() {
+    document.querySelector('[data-ui="building-count"]').textContent = state.buildings.length;
+    document.querySelector('[data-ui="building-cash"]').textContent = formatWon(state.assets.cash);
+    document.querySelector('[data-ui="building-value"]').textContent = formatWon(state.assets.property);
+    const list = document.querySelector('[data-ui="building-list"]');
+    list.replaceChildren();
+    buildings.forEach((building) => {
+      const owned = state.buildings.includes(building.id);
+      const card = document.createElement("article");
+      card.className = `building-card${owned ? " is-owned" : ""}`;
+      const icon = document.createElement("span");
+      icon.className = "building-icon";
+      icon.textContent = building.icon;
+      const info = document.createElement("div");
+      info.className = "building-copy";
+      const kind = document.createElement("span");
+      kind.textContent = building.kind;
+      const title = document.createElement("strong");
+      title.textContent = building.name;
+      const description = document.createElement("small");
+      description.textContent = building.description;
+      const effects = document.createElement("span");
+      effects.className = "building-effects";
+      effects.textContent = `구매 효과 · ${building.effects}`;
+      const passive = document.createElement("span");
+      passive.className = "building-passive";
+      passive.textContent = `보유 효과 · 하루마다 ${Object.entries(building.daily).map(([key, value]) => `${politicalLabels[key] || skillLabels[key] || key} +${value}`).join(" · ")}`;
+      info.append(kind, title, description, effects, passive);
+      const purchase = document.createElement("button");
+      purchase.type = "button";
+      purchase.dataset.action = "buy-building";
+      purchase.dataset.buildingId = building.id;
+      purchase.textContent = owned ? "보유 중" : formatWon(building.price);
+      purchase.disabled = owned || state.assets.cash < building.price;
+      card.append(icon, info, purchase);
+      list.append(card);
+    });
   }
 
   function renderRelationships() {
@@ -335,6 +607,81 @@
     const summaryValues = document.querySelectorAll(".relationship-summary strong");
     summaryValues[0].innerHTML = `${state.relationships.length}<small>명</small>`;
     summaryValues[1].innerHTML = `${average}<small>/ 100</small>`;
+  }
+
+  function renderSchedule() {
+    const list = document.querySelector(".daily-agenda");
+    list.replaceChildren();
+    let attended = 0;
+    let skipped = 0;
+    let pending = 0;
+
+    state.schedule.forEach((item) => {
+      if (item.status === "attended") attended += 1;
+      else if (item.status === "skipped") skipped += 1;
+      else pending += 1;
+
+      const card = document.createElement("article");
+      card.className = `schedule-card ${item.mandatory ? "is-mandatory" : "is-optional"} is-${item.status}`;
+      const top = document.createElement("div");
+      top.className = "schedule-card-top";
+      const time = document.createElement("time");
+      time.textContent = item.time;
+      const category = document.createElement("span");
+      category.className = "schedule-category";
+      category.textContent = item.category;
+      const status = document.createElement("span");
+      status.className = "schedule-status";
+      status.textContent = item.status === "attended" ? "참석 완료" : item.status === "skipped" ? "결석 처리" : item.mandatory ? "필수 참석" : "선택 일정";
+      top.append(time, category, status);
+
+      const title = document.createElement("h2");
+      title.textContent = item.title;
+      const detail = document.createElement("p");
+      detail.className = "schedule-detail";
+      detail.textContent = `${item.place} · ${item.detail}`;
+      const bottom = document.createElement("div");
+      bottom.className = "schedule-card-bottom";
+      const cost = document.createElement("span");
+      cost.className = "schedule-cost";
+      cost.textContent = `참석 시 AP ${item.ap} 소모`;
+      bottom.append(cost);
+
+      if (item.status === "pending") {
+        const actions = document.createElement("div");
+        actions.className = "schedule-actions";
+        const attend = document.createElement("button");
+        attend.type = "button";
+        attend.dataset.action = "attend-schedule";
+        attend.dataset.scheduleId = item.id;
+        attend.textContent = "참석";
+        attend.disabled = state.ap - item.ap < requiredAp(item.mandatory ? item.id : null);
+        actions.append(attend);
+        if (!item.mandatory) {
+          const skip = document.createElement("button");
+          skip.type = "button";
+          skip.dataset.action = "skip-schedule";
+          skip.dataset.scheduleId = item.id;
+          skip.textContent = "결석";
+          actions.append(skip);
+        }
+        bottom.append(actions);
+      } else {
+        const outcome = document.createElement("span");
+        outcome.className = "schedule-outcome";
+        outcome.textContent = item.status === "attended" ? item.result : "시간을 확보했지만 일정 효과는 얻지 못했습니다.";
+        bottom.append(outcome);
+      }
+
+      card.append(top, title, detail, bottom);
+      list.append(card);
+    });
+
+    const mandatoryPending = state.schedule.some((item) => item.mandatory && item.status === "pending");
+    document.querySelector('[data-ui="schedule-progress"]').textContent = `참석 ${attended} · 결석 ${skipped} · 남은 일정 ${pending}`;
+    document.querySelector(".mandatory-hint").textContent = mandatoryPending
+      ? "● 필수 일정을 마쳐야 하루를 마감할 수 있습니다"
+      : "● 필수 일정은 결석할 수 없습니다";
   }
 
   function renderEvent() {
@@ -374,12 +721,96 @@
     renderAbilities();
     renderAssets();
     renderRelationships();
+    renderSchedule();
     renderEvent();
+    renderCountry();
+    renderPriorities();
+    renderInvestments();
+    renderBuildings();
     renderNews();
     document.querySelectorAll('[data-action="run-activity"]').forEach((button) => {
       const activity = activities[button.dataset.activityId];
-      button.disabled = !activity || state.ap < activity.cost;
+      button.disabled = !activity || state.ap - activity.cost < requiredAp();
     });
+    document.querySelector('[data-ui="politics-ap"]').textContent = state.ap;
+  }
+
+  function advanceCountry() {
+    const previousGdp = state.country.gdp;
+    const marketReturn = marketChangePercent();
+    let gdpDelta = 0.18 + marketReturn * 0.06 + (Math.random() - 0.5) * 0.16;
+    if (Math.abs(gdpDelta) < 0.1) gdpDelta = gdpDelta < 0 ? -0.1 : 0.1;
+    state.country.gdp = Math.max(1, state.country.gdp + gdpDelta);
+    state.country.budget = Math.max(0, state.country.budget - (0.1 + Math.random() * 0.1));
+    state.country.debt += 0.1 + Math.random() * 0.1;
+    const inflationDelta = Math.random() < 0.5 ? -0.1 : 0.1;
+    state.country.inflation = Math.round(clamp(state.country.inflation + inflationDelta, 0.2, 12) * 10) / 10;
+    const employmentChange = gdpDelta > 0.2 ? -0.1 : 0.1;
+    state.country.unemployment = Math.round(clamp(state.country.unemployment + employmentChange, 1, 20) * 10) / 10;
+    const costPressure = Math.max(0, state.country.inflation - 3) + Math.max(0, state.country.unemployment - 4);
+    const happinessChange = costPressure > 1 || gdpDelta <= 0.2 ? -1 : 1;
+    state.country.happiness = clamp(state.country.happiness + happinessChange);
+    state.country.trust = clamp(state.country.trust + (Math.random() > 0.5 ? 1 : -1));
+    state.country.stability = clamp(state.country.stability + (costPressure > 2 || Math.random() <= 0.5 ? -1 : 1));
+    state.buildings.forEach((id) => {
+      const building = buildings.find((entry) => entry.id === id);
+      if (building) changeMap(state.political, building.daily);
+    });
+    state.market.forEach((stock) => {
+      stock.previousClose = stock.price;
+      stock.change = 0;
+    });
+    const headline = state.country.unemployment > 4
+      ? { category: "고용", title: "고용 지표 둔화에 청년 일자리 대책 논의", detail: `실업률 ${state.country.unemployment.toFixed(1)}%. 국회에서 고용 대책을 논의합니다.` }
+      : state.country.inflation > 3.5
+        ? { category: "물가", title: "생활 물가 상승세에 민생 부담 우려", detail: `물가 상승률 ${state.country.inflation.toFixed(1)}%. 물가 안정 대책이 필요합니다.` }
+        : { category: "경제", title: "국내 경제 지표가 새롭게 발표됐습니다", detail: `GDP ${state.country.gdp.toFixed(1)}조 원 · 실업률 ${state.country.unemployment.toFixed(1)}% · 물가 ${state.country.inflation.toFixed(1)}%` };
+    addNews(headline.category, headline.title, headline.detail);
+    record(`국가 지표 갱신: GDP ${previousGdp.toFixed(1)}조 → ${state.country.gdp.toFixed(1)}조, 실업률 ${state.country.unemployment.toFixed(1)}%, 물가 ${state.country.inflation.toFixed(1)}%.`);
+  }
+
+  function tickMarket() {
+    if (document.hidden) return;
+    state.market.forEach((stock) => {
+      const commonDrift = (Math.random() - 0.5) * 0.32;
+      const companyMove = (Math.random() - 0.5) * (stock.sector === "바이오" ? 1.5 : 1.0);
+      stock.price = Math.max(100, Math.round(stock.price * (1 + (commonDrift + companyMove) / 100) / 10) * 10);
+      stock.change = stock.previousClose ? (stock.price - stock.previousClose) / stock.previousClose * 100 : 0;
+    });
+    updateAssetTotals();
+    renderInvestments();
+    renderAssets();
+    if (Math.random() < 0.15) saveState();
+  }
+
+  function applyCountryContext(id, skills, political) {
+    const skillChanges = { ...skills };
+    const politicalChanges = { ...political };
+    const communityWork = ["field", "market", "constituents", "field-check"].includes(id);
+    const policyWork = ["study", "bill", "policy-brief", "committee"].includes(id);
+    let context = "";
+
+    if (communityWork && state.country.unemployment >= 4) {
+      politicalChanges.support = (politicalChanges.support || 0) + 2;
+      context = "고용 불안이 커 지역 민심 대응 효과가 높았습니다.";
+    }
+    if (communityWork && state.country.happiness < 60) {
+      politicalChanges.support = (politicalChanges.support || 0) + 1;
+      context = "낮은 국민 행복도가 지역 현안의 주목도를 높였습니다.";
+    }
+    if (policyWork && state.country.inflation >= 3.5) {
+      skillChanges.economy = (skillChanges.economy || 0) + 2;
+      context = "물가 압력이 커 경제 분석 경험을 더 쌓았습니다.";
+    }
+    if (policyWork && state.country.debt / state.country.gdp >= 0.55) {
+      politicalChanges.trust = (politicalChanges.trust || 0) + 1;
+      context = "높은 국가 부채를 고려한 재정 검토로 신뢰를 얻었습니다.";
+    }
+    if (id === "press" && (state.country.unemployment >= 4 || state.country.inflation >= 3.5)) {
+      politicalChanges.awareness = (politicalChanges.awareness || 0) + 2;
+      context = "경제 현안 보도가 늘어 인터뷰 도달 범위가 넓어졌습니다.";
+    }
+    return { skills: skillChanges, political: politicalChanges, context };
   }
 
   function tryRandomEvent() {
@@ -393,18 +824,21 @@
   function runActivity(id) {
     const activity = activities[id];
     if (!activity) return;
-    if (state.ap < activity.cost) {
-      showToast(`행동 포인트가 부족합니다. ${activity.cost} AP가 필요합니다.`);
+    if (state.ap - activity.cost < requiredAp()) {
+      showToast(`필수 일정에 필요한 AP ${requiredAp()}를 남겨야 합니다.`);
       return;
     }
 
     state.ap = Math.max(0, state.ap - activity.cost);
-    changeMap(state.skills, activity.skills);
-    changeMap(state.political, activity.political);
+    const outcome = applyCountryContext(id, activity.skills, activity.political);
+    changeMap(state.skills, outcome.skills);
+    changeMap(state.political, outcome.political);
     changeRelationships(activity.relationships);
     if (activity.money) state.assets.cash = Math.max(0, state.assets.cash + activity.money);
-    record(`${activity.title}: ${activity.message}`);
-    addNews(activity.category, activity.title, activity.message);
+    if (id === "study") state.country.gdp += 0.1;
+    if (id === "field" && state.country.happiness < 65) state.country.happiness = clamp(state.country.happiness + 1);
+    record(`${activity.title}: ${activity.message}${outcome.context ? ` ${outcome.context}` : ""}`);
+    addNews(activity.category, activity.title, `${activity.message}${outcome.context ? ` ${outcome.context}` : ""}`);
     render();
     saveState();
     showToast(`${activity.title} 완료 · ${activity.cost} AP 사용`);
@@ -414,6 +848,118 @@
       render();
       window.setTimeout(() => navigate("event"), 450);
     }
+  }
+
+  function completePriority(id) {
+    const priority = nationalPriorities.find((entry) => entry.id === id);
+    if (!priority || state.completedPriorities.includes(id)) return;
+    if (state.ap - priority.ap < requiredAp()) {
+      showToast(`필수 일정용 AP ${requiredAp()}를 먼저 남겨야 합니다.`);
+      return;
+    }
+    if (state.country.budget < priority.budget) {
+      showToast("국가 예산이 부족해 과제를 추진할 수 없습니다.");
+      return;
+    }
+
+    state.ap -= priority.ap;
+    state.country.budget -= priority.budget;
+    changeCountry(priority.country);
+    changeMap(state.political, priority.political);
+    changeMap(state.skills, priority.skills);
+    state.completedPriorities.push(id);
+    record(`국가 주요 과제 완료: ${priority.title}. ${priority.effects}`);
+    addNews("국가 과제", `${priority.title} 성과 발표`, priority.effects);
+    render();
+    saveState();
+    showToast(`${priority.title} 완료 · 국가 지표와 정치 기반이 크게 개선됐습니다.`);
+  }
+
+  function tradeStock(id, side) {
+    const stock = state.market.find((entry) => entry.id === id);
+    if (!stock) return;
+    if (side === "buy") {
+      if (state.assets.cash < stock.price) {
+        showToast("현금이 부족합니다.");
+        return;
+      }
+      state.assets.cash -= stock.price;
+      state.investments[id] += 1;
+      record(`${stock.name} 1주 매수 · ${formatWon(stock.price)}`);
+      addNews("투자", `${stock.name} 1주 매수`, `체결가 ${formatWon(stock.price)} · 보유 ${state.investments[id]}주`);
+    } else {
+      if (state.investments[id] < 1) {
+        showToast("매도할 보유 수량이 없습니다.");
+        return;
+      }
+      state.investments[id] -= 1;
+      state.assets.cash += stock.price;
+      record(`${stock.name} 1주 매도 · ${formatWon(stock.price)}`);
+      addNews("투자", `${stock.name} 1주 매도`, `체결가 ${formatWon(stock.price)} · 보유 ${state.investments[id]}주`);
+    }
+    updateAssetTotals();
+    render();
+    saveState();
+    showToast(`${stock.name} ${side === "buy" ? "매수" : "매도"} 체결 · ${formatWon(stock.price)}`);
+  }
+
+  function buyBuilding(id) {
+    const building = buildings.find((entry) => entry.id === id);
+    if (!building || state.buildings.includes(id)) return;
+    if (state.assets.cash < building.price) {
+      showToast("현금이 부족해 건물을 매입할 수 없습니다.");
+      return;
+    }
+    state.assets.cash -= building.price;
+    state.buildings.push(id);
+    changeMap(state.skills, building.skills);
+    changeMap(state.political, building.political);
+    updateAssetTotals();
+    record(`${building.name} 매입: ${building.effects}. 보유하는 동안 매일 추가 효과가 적용됩니다.`);
+    addNews("건물 매입", `${building.name} 매입 완료`, `정치 기반 효과: ${building.effects}`);
+    render();
+    saveState();
+    showToast(`${building.name} 매입 · ${building.effects}`);
+  }
+
+  function attendSchedule(id) {
+    const item = state.schedule.find((entry) => entry.id === id);
+    if (!item || item.status !== "pending") return;
+    if (state.ap < item.ap || state.ap - item.ap < requiredAp(item.mandatory ? item.id : null)) {
+      showToast(`이 일정은 AP ${item.ap}가 필요합니다. 필수 일정 AP를 먼저 확보하세요.`);
+      return;
+    }
+
+    state.ap -= item.ap;
+    item.status = "attended";
+    const outcome = applyCountryContext(id, item.skills, item.political);
+    changeMap(state.skills, outcome.skills);
+    changeMap(state.political, outcome.political);
+    changeRelationships(item.relationships);
+    if (item.money) state.assets.cash = Math.max(0, state.assets.cash + item.money);
+    if (id === "market" && state.country.unemployment >= 4) state.country.happiness = clamp(state.country.happiness + 1);
+    record(`${item.title} 참석: ${item.result}${outcome.context ? ` ${outcome.context}` : ""}`);
+    addNews(item.category, item.title, `${item.result}${outcome.context ? ` ${outcome.context}` : ""}`);
+    render();
+    saveState();
+    showToast(`${item.title} 참석 · AP ${item.ap} 사용`);
+  }
+
+  function skipSchedule(id) {
+    const item = state.schedule.find((entry) => entry.id === id);
+    if (!item || item.status !== "pending") return;
+    if (item.mandatory) {
+      showToast("필수 일정은 결석할 수 없습니다.");
+      return;
+    }
+
+    item.status = "skipped";
+    changeMap(state.political, item.skipPenalty);
+    record(`${item.title} 결석: AP를 사용하지 않았습니다.`);
+    addNews(item.category, `${item.title} 불참`, "일정에 참석하지 않아 효과가 발생하지 않았습니다.");
+    render();
+    saveState();
+    showToast(`${item.title} 결석 처리 · AP를 사용하지 않았습니다.`);
   }
 
   function resolveEvent(index) {
@@ -434,6 +980,16 @@
   }
 
   function endDay() {
+    if (state.schedule.some((item) => item.status === "pending" && item.mandatory)) {
+      navigate("schedule");
+      showToast("필수 일정에 참석해야 하루를 마감할 수 있습니다.");
+      return;
+    }
+    if (state.schedule.some((item) => item.status === "pending")) {
+      navigate("schedule");
+      showToast("남은 일정마다 참석 또는 결석을 선택하세요.");
+      return;
+    }
     if (state.event) {
       state.political.support = clamp(state.political.support - 2);
       record(`이벤트 대응을 미뤄 지지율이 2 하락했습니다: ${eventCatalog[state.event].title}`);
@@ -445,14 +1001,10 @@
     state.date = next.toISOString().slice(0, 10);
     state.day += 1;
     state.ap = state.maxAp;
+    state.schedule = createSchedule(state.day);
     state.skills.stamina = clamp(state.skills.stamina + 8);
     state.skills.stress = clamp(state.skills.stress - 4);
-    const headline = state.day % 2 === 0
-      ? { category: "경제", title: "소상공인 지원 대책 논의 확대", detail: "정부와 국회가 추가 지원책을 검토하고 있습니다.", target: "support", amount: 1 }
-      : { category: "국회", title: "민생 법안 처리 협의 이어져", detail: "여야 의원들이 법안 처리 일정을 조율하고 있습니다.", target: "influence", amount: 1 };
-    if (headline.target === "support") state.political.support = clamp(state.political.support + headline.amount);
-    else state.political.influence = clamp(state.political.influence + headline.amount);
-    addNews(headline.category, headline.title, headline.detail);
+    advanceCountry();
     record(`새로운 하루가 시작됐습니다. 행동 포인트가 ${state.maxAp}로 회복됐습니다.`);
     const hasEvent = tryRandomEvent();
     render();
@@ -533,7 +1085,7 @@
         navigate("schedule");
         break;
       case "open-activities": {
-        navigate("schedule");
+        navigate("politics");
         const activityId = button.dataset.activity;
         if (activityId) {
           const card = document.querySelector(`[data-activity-card="${CSS.escape(activityId)}"]`);
@@ -545,6 +1097,24 @@
       }
       case "run-activity":
         runActivity(button.dataset.activityId);
+        break;
+      case "complete-priority":
+        completePriority(button.dataset.priorityId);
+        break;
+      case "buy-stock":
+        tradeStock(button.dataset.stockId, "buy");
+        break;
+      case "sell-stock":
+        tradeStock(button.dataset.stockId, "sell");
+        break;
+      case "buy-building":
+        buyBuilding(button.dataset.buildingId);
+        break;
+      case "attend-schedule":
+        attendSchedule(button.dataset.scheduleId);
+        break;
+      case "skip-schedule":
+        skipSchedule(button.dataset.scheduleId);
         break;
       case "open-briefing":
         if (!state.event) {
@@ -589,4 +1159,6 @@
   });
 
   render();
+  window.setInterval(tickMarket, 4000);
+  window.setInterval(saveState, 30000);
 })();
